@@ -1,0 +1,206 @@
+%!PS-Adobe-2.0
+%%CreationDate: Wed Jul 29 16:23:40 1992
+%%Title: troff output
+%%Creator: user george using opost (NeWSprint) 
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+% @(#)opost.ps	1.5	10/15/90
+%
+% Prologue file included by opost
+
+	
+/M{3 mul moveto}bind def
+/P{M gsave show grestore}bind def
+/X{0 rmoveto gsave show grestore}bind def
+/x{neg X}bind def
+/F{findfont exch scalefont setfont}bind def
+/TR{/Times-Roman F}bind def
+/TI{/Times-Italic F}bind def
+/TB{/Times-Bold F}bind def
+/S{/Symbol F}bind def
+/H{/Helvetica F}bind def
+/HO{/Helvetica-Oblique F}bind def
+/HB{/Helvetica-Bold F}bind def
+/C{/Courier F}bind def
+/CO{/Courier-Oblique F}bind def
+/CB{/Courier-Bold F}bind def
+/TBI{/Times-BoldItalic F}bind def
+/HBO{/Helvetica-BoldOblique F}bind def
+/CBO{/Courier-BoldOblique F}bind def
+/MR[.65 0 0 .6 0 0]def
+/1H{gsave newpath 0 0 moveto(1)true charpath flattenpath pathbbox
+ 4 1 roll pop pop pop grestore}bind def
+/DR{gsave 1H 18 div setlinewidth currentpoint translate}bind def
+/Z{0 0 transform exch round exch round itransform moveto}bind def
+
+
+/O{DR newpath 1H 2 div dup dup 0 360 arc stroke grestore}bind def
+/SQ{DR Z newpath 0 0 moveto 1H 0 rlineto 0 1H rlineto 1H neg 0 rlineto
+ closepath stroke grestore}bind def
+/R{gsave 0 1H .4 mul 2 copy rmoveto currentfont dup MR makefont dup
+ setfont exch 6 -1 roll show setfont 3 1 roll neg rmoveto(\244)show
+ setfont show grestore}bind def
+%%EndProlog
+%%BeginSetup
+0 20 translate
+1 6 div dup scale
+0.000000 0.000000 translate
+%%EndSetup
+
+%%Page: 1 1
+save
+96 TB(M)691 1121
+P(I)91
+X(T)37
+X(-)64
+X(B)32
+X(I)64
+X(H)37
+X(A)107
+X(R)69
+X(R)69
+X(H)69
+X(Y)75
+X(T)69
+X(H)64
+X(M)75
+X(I)91
+X(A)37
+X(D)101
+X(A)69
+X(T)69
+X(A)64
+X(B)69
+X(A)64
+X(S)69
+X(E)53
+X(D)96
+X(I)69
+X(R)37
+X(E)69
+X(C)64
+X(T)69
+X(O)64
+X(R)75
+X(Y)69
+X
+84 TB(s)2130 1001
+P(t)28
+x(n)47
+x(e)37
+x(t)28
+x(n)47
+x(o)42
+x(C)61
+x(f)56
+x(o)42
+x(e)65
+x(l)23
+x(b)47
+x(a)42
+x(T)56
+x(F)1174 953
+P(o)51
+X(r)42
+X(e)37
+X(w)37
+X(o)61
+X(r)42
+X(d)37
+X(i)948
+X(i)23
+X(i)23
+X(v)2456 905
+P(n)871
+x(o)42
+x(i)23
+x(t)28
+x(c)37
+x(u)47
+x(d)47
+x(o)42
+x(r)37
+x(t)28
+x(n)47
+x(I)33
+x(S)1174 857
+P(y)47
+X(m)42
+X(b)70
+X(o)47
+X(l)42
+X(s)23
+X(v)942
+X(i)42
+X(i)23
+X(i)23
+X(1)2456 809
+P(s)243
+x(t)28
+x(o)42
+x(l)23
+x(P)51
+x(G)93
+x(C)61
+x(E)56
+x(')56
+x(')28
+x(e)37
+x(r)37
+x(u)47
+x(s)33
+x(o)42
+x(l)23
+x(c)37
+x(s)33
+x(i)23
+x(D)61
+x(-)28
+x(l)23
+x(l)23
+x(u)47
+x(F)51
+x(`)28
+x(`)28
+x(E)1174 761
+P(x)56
+X(a)42
+X(m)42
+X(p)70
+X(l)47
+X(e)23
+X(s)37
+X(9)923
+X(8)42
+X(8)2456 713
+P(7)42
+x(1)42
+x(s)1030
+x(e)37
+x(t)28
+x(o)42
+x(N)61
+x(T)1174 665
+P(a)56
+X(b)42
+X(l)47
+X(e)23
+X(s)37
+X(1)993
+X(8)42
+X(9)42
+X(4)2456 617
+P(9)42
+x(1)42
+x(x)1034
+x(e)37
+x(d)47
+x(n)47
+x(I)33
+x
+showpage
+restore
+%%Trailer
+%%DocumentFonts: Times-Bold
+%%Pages: 1

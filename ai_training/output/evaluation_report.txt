@@ -1,0 +1,13 @@
+PulseMind AI Model Evaluation
+Accuracy: 0.9389
+
+Classification Report:
+              precision    recall  f1-score   support
+
+  arrhythmia       0.83      0.86      0.85        87
+normal_sinus       0.96      0.96      0.96       345
+ tachycardia       1.00      1.00      1.00        10
+
+    accuracy                           0.94       442
+   macro avg       0.93      0.94      0.94       442
+weighted avg       0.94      0.94      0.94       442

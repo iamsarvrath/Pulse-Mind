@@ -1,0 +1,101 @@
+services:
+  # API Gateway - FastAPI
+  api-gateway:
+    build:
+      context: ./services
+      dockerfile: api-gateway/Dockerfile
+    container_name: pulsemind-api-gateway
+    ports:
+      - "8000:8000"
+    networks:
+      - pulsemind-network
+    restart: unless-stopped
+
+  # Signal Processing Service
+  signal-service:
+    build:
+      context: ./services
+      dockerfile: signal-service/Dockerfile
+    container_name: pulsemind-signal-service
+    ports:
+      - "8001:8001"
+    networks:
+      - pulsemind-network
+    restart: unless-stopped
+
+  # Hyperspectral Imaging Service
+  hsi-service:
+    build:
+      context: ./services
+      dockerfile: hsi-service/Dockerfile
+    container_name: pulsemind-hsi-service
+    ports:
+      - "8002:8002"
+    networks:
+      - pulsemind-network
+    restart: unless-stopped
+
+  # AI Inference Engine
+  ai-inference:
+    build:
+      context: ./services
+      dockerfile: ai-inference/Dockerfile
+    container_name: pulsemind-ai-inference
+    ports:
+      - "8003:8003"
+    networks:
+      - pulsemind-network
+    restart: unless-stopped
+
+  # Control Engine
+  control-engine:
+    build:
+      context: ./services
+      dockerfile: control-engine/Dockerfile
+    container_name: pulsemind-control-engine
+    ports:
+      - "8004:8004"
+    networks:
+      - pulsemind-network
+    restart: unless-stopped
+
+  # MQTT Broker - Eclipse Mosquitto
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: pulsemind-mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./services/mqtt-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mqtt-data:/mosquitto/data
+      - mqtt-logs:/mosquitto/log
+    networks:
+      - pulsemind-network
+    restart: unless-stopped
+
+  # Dashboard - Streamlit
+  dashboard:
+    build:
+      context: ./services
+      dockerfile: dashboard/Dockerfile
+    container_name: pulsemind-dashboard
+    ports:
+      - "8501:8501"
+    networks:
+      - pulsemind-network
+    depends_on:
+      - api-gateway
+      - signal-service
+      - hsi-service
+      - ai-inference
+      - control-engine
+    restart: unless-stopped
+
+networks:
+  pulsemind-network:
+    driver: bridge
+
+volumes:
+  mqtt-data:
+  mqtt-logs:

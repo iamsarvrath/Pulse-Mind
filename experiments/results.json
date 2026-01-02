@@ -1,0 +1,1522 @@
+[
+  {
+    "scenario": "Normal_Rhythm",
+    "timestamp": "2026-01-02T10:43:53.482210",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 5.149286505444373,
+          "num_peaks": 13,
+          "pulse_amplitude": 260.19917542865187
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.36,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 5.149286505444373,
+          "pulse_amplitude": 260.19917542865187
+        },
+        "prediction": {
+          "confidence": 0.4,
+          "confidence_level": "low",
+          "inference_time_ms": 2.209,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.4,
+            "normal_sinus": 0.4,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.79,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:53.698279Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.4
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 69.8
+        },
+        "processing_time_ms": 0.72,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:53.717289Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 31.642913818359375,
+      "ai_ms": 9.454727172851562,
+      "control_ms": 18.834352493286133,
+      "total_ms": 59.93199348449707
+    }
+  },
+  {
+    "scenario": "Tachycardia_Alert",
+    "timestamp": "2026-01-02T10:43:54.442181",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 120.0,
+          "hrv_sdnn_ms": 8.16496580927726,
+          "num_peaks": 20,
+          "pulse_amplitude": 222.23598712477548
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.24,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 120.0,
+          "hrv_sdnn_ms": 8.16496580927726,
+          "pulse_amplitude": 222.23598712477548
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.393,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.2,
+            "normal_sinus": 0.1,
+            "tachycardia": 0.5
+          },
+          "rhythm_class": "tachycardia"
+        },
+        "processing_time_ms": 3.01,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:54.235574Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 120.0,
+          "hsi_score": 65.0,
+          "hsi_trend": "decreasing",
+          "rhythm_class": "tachycardia",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.6,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Tachycardia detected - stabilizing rhythm; Fair cardiovascular status (HSI=65.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 79.8
+        },
+        "processing_time_ms": 0.72,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:54.244552Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 27.97245979309082,
+      "ai_ms": 10.129451751708984,
+      "control_ms": 9.120702743530273,
+      "total_ms": 47.22261428833008
+    }
+  },
+  {
+    "scenario": "Bradycardia_Warning",
+    "timestamp": "2026-01-02T10:43:54.990288",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 51.77993527508091,
+          "hrv_sdnn_ms": 266.7496150753683,
+          "num_peaks": 9,
+          "pulse_amplitude": 242.565239446612
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.05,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 51.77993527508091,
+          "hrv_sdnn_ms": 266.7496150753683,
+          "pulse_amplitude": 242.565239446612
+        },
+        "prediction": {
+          "confidence": 0.8,
+          "confidence_level": "high",
+          "inference_time_ms": 4.562,
+          "probability_distribution": {
+            "artifact": 0.0,
+            "bradycardia": 0.2,
+            "irregular": 0.0,
+            "normal_sinus": 0.8,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 5.13,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:54.759580Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 51.77993527508091,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.8
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": true,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 59.8
+        },
+        "processing_time_ms": 0.62,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:54.765753Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 22.604942321777344,
+      "ai_ms": 11.659622192382812,
+      "control_ms": 6.180524826049805,
+      "total_ms": 40.44508934020996
+    }
+  },
+  {
+    "scenario": "Noisy_Signal",
+    "timestamp": "2026-01-02T10:43:55.531504",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 104.1879468845761,
+          "hrv_sdnn_ms": 137.7524420622649,
+          "num_peaks": 18,
+          "pulse_amplitude": 3.6978651729802356
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.41,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 104.1879468845761,
+          "hrv_sdnn_ms": 137.7524420622649,
+          "pulse_amplitude": 3.6978651729802356
+        },
+        "prediction": {
+          "confidence": 0.4,
+          "confidence_level": "low",
+          "inference_time_ms": 2.266,
+          "probability_distribution": {
+            "artifact": 0.3,
+            "bradycardia": 0.2,
+            "irregular": 0.0,
+            "normal_sinus": 0.4,
+            "tachycardia": 0.1
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.93,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:55.281347Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 104.1879468845761,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.4
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 69.8
+        },
+        "processing_time_ms": 0.81,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:55.288379Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 26.205062866210938,
+      "ai_ms": 8.695840835571289,
+      "control_ms": 6.591796875,
+      "total_ms": 41.49270057678223
+    }
+  },
+  {
+    "scenario": "Normal_Rhythm",
+    "timestamp": "2026-01-02T10:43:56.074569",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 5.149286505444373,
+          "num_peaks": 13,
+          "pulse_amplitude": 261.51138611071616
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.03,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 5.149286505444373,
+          "pulse_amplitude": 261.51138611071616
+        },
+        "prediction": {
+          "confidence": 0.4,
+          "confidence_level": "low",
+          "inference_time_ms": 3.231,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.4,
+            "normal_sinus": 0.4,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 3.69,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:55.805254Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.4
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.76,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:55.811352Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 25.614261627197266,
+      "ai_ms": 8.101701736450195,
+      "control_ms": 7.29680061340332,
+      "total_ms": 42.0229434967041
+    }
+  },
+  {
+    "scenario": "Tachycardia_Alert",
+    "timestamp": "2026-01-02T10:43:56.617908",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 120.0,
+          "hrv_sdnn_ms": 6.666666666666667,
+          "num_peaks": 20,
+          "pulse_amplitude": 220.73479587501856
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.44,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 120.0,
+          "hrv_sdnn_ms": 6.666666666666667,
+          "pulse_amplitude": 220.73479587501856
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.521,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.2,
+            "normal_sinus": 0.1,
+            "tachycardia": 0.5
+          },
+          "rhythm_class": "tachycardia"
+        },
+        "processing_time_ms": 3.04,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:56.329363Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 120.0,
+          "hsi_score": 65.0,
+          "hsi_trend": "decreasing",
+          "rhythm_class": "tachycardia",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.6,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Tachycardia detected - stabilizing rhythm; Fair cardiovascular status (HSI=65.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.76,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:56.335914Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 26.007413864135742,
+      "ai_ms": 8.638143539428711,
+      "control_ms": 6.160974502563477,
+      "total_ms": 43.318748474121094
+    }
+  },
+  {
+    "scenario": "Bradycardia_Warning",
+    "timestamp": "2026-01-02T10:43:57.162874",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 48.0,
+          "hrv_sdnn_ms": 10.0,
+          "num_peaks": 8,
+          "pulse_amplitude": 261.4401916536485
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.48,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 48.0,
+          "hrv_sdnn_ms": 10.0,
+          "pulse_amplitude": 261.4401916536485
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 3.01,
+          "probability_distribution": {
+            "artifact": 0.1,
+            "bradycardia": 0.1,
+            "irregular": 0.5,
+            "normal_sinus": 0.3,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "irregular"
+        },
+        "processing_time_ms": 3.55,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:56.850703Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 48.0,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "irregular",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Irregular rhythm - stabilization needed; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 65.1
+        },
+        "processing_time_ms": 0.73,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:56.869795Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 24.323463439941406,
+      "ai_ms": 8.877277374267578,
+      "control_ms": 19.896984100341797,
+      "total_ms": 53.09772491455078
+    }
+  },
+  {
+    "scenario": "Noisy_Signal",
+    "timestamp": "2026-01-02T10:43:57.717885",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 83.78088077336197,
+          "hrv_sdnn_ms": 259.2790794214624,
+          "num_peaks": 14,
+          "pulse_amplitude": 3.4784314069229563
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.47,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 83.78088077336197,
+          "hrv_sdnn_ms": 259.2790794214624,
+          "pulse_amplitude": 3.4784314069229563
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.827,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.2,
+            "irregular": 0.1,
+            "normal_sinus": 0.5,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 3.49,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:57.371477Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 83.78088077336197,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 69.8
+        },
+        "processing_time_ms": 0.93,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:57.377679Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 8.269548416137695,
+      "ai_ms": 8.647441864013672,
+      "control_ms": 7.3528289794921875,
+      "total_ms": 25.79665184020996
+    }
+  },
+  {
+    "scenario": "Normal_Rhythm",
+    "timestamp": "2026-01-02T10:43:58.245122",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 6.685579234215215,
+          "num_peaks": 13,
+          "pulse_amplitude": 260.5462020416339
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.39,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 6.685579234215215,
+          "pulse_amplitude": 260.5462020416339
+        },
+        "prediction": {
+          "confidence": 0.4,
+          "confidence_level": "low",
+          "inference_time_ms": 2.991,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.4,
+            "normal_sinus": 0.4,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 3.73,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:57.895278Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.4
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.72,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:57.914287Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 27.521371841430664,
+      "ai_ms": 8.92019271850586,
+      "control_ms": 19.388198852539062,
+      "total_ms": 56.36262893676758
+    }
+  },
+  {
+    "scenario": "Tachycardia_Alert",
+    "timestamp": "2026-01-02T10:43:58.802137",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 120.12644889357217,
+          "hrv_sdnn_ms": 5.242650104380328,
+          "num_peaks": 20,
+          "pulse_amplitude": 217.64494678126826
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.29,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 120.12644889357217,
+          "hrv_sdnn_ms": 5.242650104380328,
+          "pulse_amplitude": 217.64494678126826
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.464,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.2,
+            "normal_sinus": 0.1,
+            "tachycardia": 0.5
+          },
+          "rhythm_class": "tachycardia"
+        },
+        "processing_time_ms": 3.25,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:58.413395Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 120.12644889357217,
+          "hsi_score": 65.0,
+          "hsi_trend": "decreasing",
+          "rhythm_class": "tachycardia",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.6,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Tachycardia detected - stabilizing rhythm; Fair cardiovascular status (HSI=65.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.9,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:58.420376Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 8.534908294677734,
+      "ai_ms": 10.02049446105957,
+      "control_ms": 6.264448165893555,
+      "total_ms": 24.81985092163086
+    }
+  },
+  {
+    "scenario": "Bradycardia_Warning",
+    "timestamp": "2026-01-02T10:43:59.328507",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 51.77993527508091,
+          "hrv_sdnn_ms": 258.4811405112566,
+          "num_peaks": 9,
+          "pulse_amplitude": 241.89291072318872
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 1.93,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 51.77993527508091,
+          "hrv_sdnn_ms": 258.4811405112566,
+          "pulse_amplitude": 241.89291072318872
+        },
+        "prediction": {
+          "confidence": 0.8,
+          "confidence_level": "high",
+          "inference_time_ms": 2.187,
+          "probability_distribution": {
+            "artifact": 0.0,
+            "bradycardia": 0.2,
+            "irregular": 0.0,
+            "normal_sinus": 0.8,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.81,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:58.941369Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 51.77993527508091,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.8
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": true,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 65.1
+        },
+        "processing_time_ms": 1.06,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:58.968964Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 8.682012557983398,
+      "ai_ms": 29.345035552978516,
+      "control_ms": 26.856660842895508,
+      "total_ms": 67.43073463439941
+    }
+  },
+  {
+    "scenario": "Noisy_Signal",
+    "timestamp": "2026-01-02T10:43:59.898260",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 85.62691131498472,
+          "hrv_sdnn_ms": 174.9929354932006,
+          "num_peaks": 15,
+          "pulse_amplitude": 3.656443279423187
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.29,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 85.62691131498472,
+          "hrv_sdnn_ms": 174.9929354932006,
+          "pulse_amplitude": 3.656443279423187
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.156,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.2,
+            "irregular": 0.1,
+            "normal_sinus": 0.5,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.66,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:59.468792Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 85.62691131498472,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 69.8
+        },
+        "processing_time_ms": 1.09,
+        "success": true,
+        "timestamp": "2026-01-02T10:43:59.476366Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 9.794950485229492,
+      "ai_ms": 8.713960647583008,
+      "control_ms": 7.843494415283203,
+      "total_ms": 26.352405548095703
+    }
+  },
+  {
+    "scenario": "Normal_Rhythm",
+    "timestamp": "2026-01-02T10:44:00.425374",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 5.149286505444373,
+          "num_peaks": 13,
+          "pulse_amplitude": 265.21384160926664
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.84,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 5.149286505444373,
+          "pulse_amplitude": 265.21384160926664
+        },
+        "prediction": {
+          "confidence": 0.4,
+          "confidence_level": "low",
+          "inference_time_ms": 2.176,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.4,
+            "normal_sinus": 0.4,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.85,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:00.014543Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.4
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.7,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:00.042142Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 26.102781295776367,
+      "ai_ms": 29.796123504638672,
+      "control_ms": 27.193307876586914,
+      "total_ms": 85.6621265411377
+    }
+  },
+  {
+    "scenario": "Tachycardia_Alert",
+    "timestamp": "2026-01-02T10:44:01.013122",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 120.25316455696202,
+          "hrv_sdnn_ms": 5.6713087281560055,
+          "num_peaks": 20,
+          "pulse_amplitude": 218.44062061912882
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 3.13,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 120.25316455696202,
+          "hrv_sdnn_ms": 5.6713087281560055,
+          "pulse_amplitude": 218.44062061912882
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 3.523,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.2,
+            "normal_sinus": 0.1,
+            "tachycardia": 0.5
+          },
+          "rhythm_class": "tachycardia"
+        },
+        "processing_time_ms": 4.32,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:00.567401Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 120.25316455696202,
+          "hsi_score": 65.0,
+          "hsi_trend": "decreasing",
+          "rhythm_class": "tachycardia",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.6,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Tachycardia detected - stabilizing rhythm; Fair cardiovascular status (HSI=65.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.83,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:00.575701Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 10.272741317749023,
+      "ai_ms": 28.95832061767578,
+      "control_ms": 6.897211074829102,
+      "total_ms": 47.12867736816406
+    }
+  },
+  {
+    "scenario": "Bradycardia_Warning",
+    "timestamp": "2026-01-02T10:44:01.562142",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 51.61290322580645,
+          "hrv_sdnn_ms": 252.0629173157255,
+          "num_peaks": 9,
+          "pulse_amplitude": 241.47720797283205
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.2,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 51.61290322580645,
+          "hrv_sdnn_ms": 252.0629173157255,
+          "pulse_amplitude": 241.47720797283205
+        },
+        "prediction": {
+          "confidence": 0.8,
+          "confidence_level": "high",
+          "inference_time_ms": 2.797,
+          "probability_distribution": {
+            "artifact": 0.0,
+            "bradycardia": 0.2,
+            "irregular": 0.0,
+            "normal_sinus": 0.8,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 3.5,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:01.131443Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 51.61290322580645,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.8
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": true,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 65.1
+        },
+        "processing_time_ms": 1.05,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:01.138277Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 24.51324462890625,
+      "ai_ms": 32.13810920715332,
+      "control_ms": 8.046865463256836,
+      "total_ms": 64.6982192993164
+    }
+  },
+  {
+    "scenario": "Noisy_Signal",
+    "timestamp": "2026-01-02T10:44:02.128468",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 94.73684210526316,
+          "hrv_sdnn_ms": 218.22880085774545,
+          "num_peaks": 16,
+          "pulse_amplitude": 3.4660046019743715
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.4,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 94.73684210526316,
+          "hrv_sdnn_ms": 218.22880085774545,
+          "pulse_amplitude": 3.4660046019743715
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.45,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.2,
+            "irregular": 0.1,
+            "normal_sinus": 0.5,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 3.11,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:01.674666Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 94.73684210526316,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.67,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:01.693758Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 28.418302536010742,
+      "ai_ms": 9.095191955566406,
+      "control_ms": 18.801212310791016,
+      "total_ms": 56.314706802368164
+    }
+  },
+  {
+    "scenario": "Normal_Rhythm",
+    "timestamp": "2026-01-02T10:44:02.685915",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 2.886751345948129,
+          "num_peaks": 13,
+          "pulse_amplitude": 263.6227769143616
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.91,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hrv_sdnn_ms": 2.886751345948129,
+          "pulse_amplitude": 263.6227769143616
+        },
+        "prediction": {
+          "confidence": 0.4,
+          "confidence_level": "low",
+          "inference_time_ms": 4.33,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.4,
+            "normal_sinus": 0.4,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 5.32,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:02.249367Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 75.07820646506778,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.4
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 1.25,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:02.258892Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 24.38831329345703,
+      "ai_ms": 33.060550689697266,
+      "control_ms": 9.18436050415039,
+      "total_ms": 67.64030456542969
+    }
+  },
+  {
+    "scenario": "Tachycardia_Alert",
+    "timestamp": "2026-01-02T10:44:03.254875",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 120.0,
+          "hrv_sdnn_ms": 3.3333333333333335,
+          "num_peaks": 20,
+          "pulse_amplitude": 217.2137360762334
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.3,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 120.0,
+          "hrv_sdnn_ms": 3.3333333333333335,
+          "pulse_amplitude": 217.2137360762334
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.412,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.0,
+            "irregular": 0.2,
+            "normal_sinus": 0.1,
+            "tachycardia": 0.5
+          },
+          "rhythm_class": "tachycardia"
+        },
+        "processing_time_ms": 3.01,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:02.814235Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 120.0,
+          "hsi_score": 65.0,
+          "hsi_trend": "decreasing",
+          "rhythm_class": "tachycardia",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.6,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Tachycardia detected - stabilizing rhythm; Fair cardiovascular status (HSI=65.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 85.1
+        },
+        "processing_time_ms": 0.87,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:02.821379Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 25.843381881713867,
+      "ai_ms": 31.893253326416016,
+      "control_ms": 6.923913955688477,
+      "total_ms": 64.66054916381836
+    }
+  },
+  {
+    "scenario": "Bradycardia_Warning",
+    "timestamp": "2026-01-02T10:44:03.820493",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 51.61290322580645,
+          "hrv_sdnn_ms": 255.6644005611374,
+          "num_peaks": 9,
+          "pulse_amplitude": 243.50567309634025
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.24,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 51.61290322580645,
+          "hrv_sdnn_ms": 255.6644005611374,
+          "pulse_amplitude": 243.50567309634025
+        },
+        "prediction": {
+          "confidence": 0.8,
+          "confidence_level": "high",
+          "inference_time_ms": 2.214,
+          "probability_distribution": {
+            "artifact": 0.0,
+            "bradycardia": 0.2,
+            "irregular": 0.0,
+            "normal_sinus": 0.8,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.76,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:03.871528Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 51.61290322580645,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.8
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": true,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 65.1
+        },
+        "processing_time_ms": 0.64,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:03.877607Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 21.62027359008789,
+      "ai_ms": 31.198740005493164,
+      "control_ms": 6.51240348815918,
+      "total_ms": 59.331417083740234
+    }
+  },
+  {
+    "scenario": "Noisy_Signal",
+    "timestamp": "2026-01-02T10:44:04.380918",
+    "steps": {
+      "signal": {
+        "features": {
+          "heart_rate_bpm": 93.3609958506224,
+          "hrv_sdnn_ms": 203.52138064820704,
+          "num_peaks": 16,
+          "pulse_amplitude": 3.9816297205118385
+        },
+        "metadata": {
+          "filter_applied": true,
+          "processing_time_ms": 2.56,
+          "sampling_rate": 100.0,
+          "signal_length": 1000
+        },
+        "success": true
+      },
+      "ai": {
+        "input_features": {
+          "heart_rate_bpm": 93.3609958506224,
+          "hrv_sdnn_ms": 203.52138064820704,
+          "pulse_amplitude": 3.9816297205118385
+        },
+        "prediction": {
+          "confidence": 0.5,
+          "confidence_level": "low",
+          "inference_time_ms": 2.404,
+          "probability_distribution": {
+            "artifact": 0.2,
+            "bradycardia": 0.2,
+            "irregular": 0.1,
+            "normal_sinus": 0.5,
+            "tachycardia": 0.0
+          },
+          "rhythm_class": "normal_sinus"
+        },
+        "processing_time_ms": 2.91,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:05.109760Z"
+      },
+      "control": {
+        "input_summary": {
+          "heart_rate_bpm": 93.3609958506224,
+          "hsi_score": 95.0,
+          "hsi_trend": "stable",
+          "rhythm_class": "normal_sinus",
+          "rhythm_confidence": 0.5
+        },
+        "pacing_command": {
+          "pacing_amplitude_ma": 1.2,
+          "pacing_enabled": true,
+          "pacing_mode": "minimal",
+          "rationale": "Safe mode active - unreliable data, minimal intervention; Normal sinus rhythm detected; Good cardiovascular status (HSI=95.0); Pacing mode: minimal",
+          "safety_checks": {
+            "amplitude_within_bounds": true,
+            "confidence_acceptable": false,
+            "hsi_acceptable": true,
+            "rate_within_bounds": true
+          },
+          "safety_state": "safe_mode",
+          "target_rate_bpm": 75.1
+        },
+        "processing_time_ms": 0.9,
+        "success": true,
+        "timestamp": "2026-01-02T10:44:05.116885Z"
+      }
+    },
+    "latency": {
+      "signal_ms": 17.836809158325195,
+      "ai_ms": 32.46259689331055,
+      "control_ms": 6.766557693481445,
+      "total_ms": 57.06596374511719
+    }
+  }
+]
