@@ -33,6 +33,8 @@ public:
     void begin() {
         pinMode(pin, INPUT);
         analogReadResolution(ADC_RESOLUTION_BITS);
+        Serial.print("[Sensor] Initialized PPG on Pin: ");
+        Serial.println(pin);
     }
 
     /**
