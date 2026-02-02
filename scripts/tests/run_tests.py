@@ -16,7 +16,7 @@ def main():
         print(f"{YELLOW}Tests directory not found. Skipping.{RESET}")
         return
 
-    pytest_result = subprocess.run(["python", "-m", "pytest", "tests/"], shell=True)
+    pytest_result = subprocess.run(["python", "-m", "pytest", "tests/", "services/"], shell=True)
     
     if pytest_result.returncode != 0:
         print(f"\n{RED}Tests failed!{RESET}")

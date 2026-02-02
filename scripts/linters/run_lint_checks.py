@@ -9,7 +9,7 @@ RESET = "\033[0m"
 def main():
     """Runs Black (check mode) and Flake8."""
     print("Running black check...")
-    black_result = subprocess.run(["python", "-m", "black", "--check", "services/"], shell=True)
+    black_result = subprocess.run(["python", "-m", "black", "--check", "--quiet", "services/"], shell=True)
     
     print("\nRunning flake8 check...")
     flake8_cmd = [

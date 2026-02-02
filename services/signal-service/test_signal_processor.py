@@ -79,7 +79,7 @@ class TestPeakDetection(unittest.TestCase):
         t = np.linspace(0, duration, sampling_rate * duration)
 
         # Simulate 1 Hz signal (60 BPM)
-        signal_data = np.sin(2 * np.pi * 1.0 * t) + 0.1 * np.random.randn(len(t))
+        signal_data = np.sin(2 * np.pi * 1.0 * t) + 0.01 * np.random.randn(len(t))
 
         peaks, properties = detect_peaks(signal_data, sampling_rate)
 

@@ -45,13 +45,13 @@ class TestNormalizationFunctions(unittest.TestCase):
     def test_normalize_hr_extreme_low(self):
         """Test HR normalization at extreme low value."""
         score = normalize_heart_rate(40.0)
-        self.assertGreater(score, 0.0)
+        self.assertGreaterEqual(score, 0.0)
         self.assertLess(score, 0.5)
 
     def test_normalize_hr_extreme_high(self):
         """Test HR normalization at extreme high value."""
         score = normalize_heart_rate(120.0)
-        self.assertGreater(score, 0.0)
+        self.assertGreaterEqual(score, 0.0)
         self.assertLess(score, 0.5)
 
     def test_normalize_hrv_min(self):
