@@ -15,22 +15,9 @@ HSI_SERVICE_URL = "http://localhost:8002"
 AI_INFERENCE_URL = "http://localhost:8003"
 CONTROL_ENGINE_URL = "http://localhost:8004"
 
-def is_service_running(url):
-    try:
-        requests.get(f"{url}/health", timeout=1)
-        return True
-    except requests.exceptions.RequestException:
-        return False
-
-
 class TestPulseMindIntegration(unittest.TestCase):
     
-    def setUp(self):
-        if not is_service_running(SIGNAL_SERVICE_URL):
-            self.skipTest("Signal Service is not running")
-
     def test_01_health_checks(self):
-
         """Verify all services are up and healthy."""
         services = [
             ("Signal Service", SIGNAL_SERVICE_URL),

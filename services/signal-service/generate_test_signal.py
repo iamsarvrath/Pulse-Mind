@@ -15,10 +15,13 @@ t = np.linspace(0, duration, sampling_rate * duration)
 signal = 100 + 20 * np.sin(2 * np.pi * frequency * t) + 2 * np.random.randn(len(t))
 
 # Create JSON payload
-payload = {"signal": signal.tolist(), "sampling_rate": sampling_rate}
+payload = {
+    "signal": signal.tolist(),
+    "sampling_rate": sampling_rate
+}
 
 # Save to file
-with open("test_ppg_signal.json", "w") as f:
+with open('test_ppg_signal.json', 'w') as f:
     json.dump(payload, f, indent=2)
 
 print(f"Generated {len(signal)} samples at {sampling_rate} Hz")
