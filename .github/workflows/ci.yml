@@ -27,27 +27,15 @@ jobs:
         pip install black flake8 bandit safety pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Lint with Black
+    - name: Run Lint Checks
       run: |
-        # Check formatting without modifying files
-        black --check services/
+        python -m scripts.linters.run_lint_checks
 
-    - name: Lint with Flake8
+    - name: Run Security Checks
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 services/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 services/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-    - name: Security Scan (Bandit)
-      run: |
-        bandit -r services/ -f custom
+        python -m scripts.security.run_security_checks
 
     - name: Run Tests
       # Only run if tests directory exists and is not empty
       run: |
-        if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
-            pytest tests/
-        else
-            echo "No tests found, skipping..."
-        fi
+        python -m scripts.tests.run_tests
