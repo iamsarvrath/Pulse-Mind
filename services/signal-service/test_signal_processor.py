@@ -1,10 +1,10 @@
-"""
-Unit tests for PPG signal processing module.
+"""Unit tests for PPG signal processing module.
 
 Tests bandpass filtering, peak detection, and feature extraction.
 """
 
 import unittest
+
 import numpy as np
 from signal_processor import (
     bandpass_filter,

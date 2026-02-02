@@ -1,6 +1,7 @@
 # Generate realistic PPG test signal
-import numpy as np
 import json
+
+import numpy as np
 
 # Parameters
 sampling_rate = 100  # Hz
@@ -24,4 +25,4 @@ with open("test_ppg_signal.json", "w") as f:
 print(f"Generated {len(signal)} samples at {sampling_rate} Hz")
 print(f"Duration: {duration} seconds")
 print(f"Expected HR: {heart_rate} BPM")
-print(f"Saved to test_ppg_signal.json")
+print("Saved to test_ppg_signal.json")

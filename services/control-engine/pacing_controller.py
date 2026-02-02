@@ -1,5 +1,4 @@
-"""
-Adaptive Pacing Control Engine
+"""Adaptive Pacing Control Engine.
 
 This module implements a medical-grade control system for cardiac pacing decisions.
 It uses a finite-state safety controller with deterministic adaptive pacing policy.
@@ -15,15 +14,15 @@ Design Principles:
 5. Robust - Never crashes, handles all invalid inputs gracefully
 """
 
-import sys
 import os
-from typing import Dict, Optional, Tuple
-from enum import Enum
+import sys
 from datetime import datetime
+from enum import Enum
+from typing import Dict
 
 # Add shared module to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from shared.logger import setup_logger
+from shared.logger import setup_logger  # noqa: E402
 
 logger = setup_logger("pacing-controller", level="INFO")
 
@@ -67,11 +66,10 @@ MAX_RATE_DECREASE_PER_CYCLE = 10  # BPM - Maximum decrease per decision
 
 
 class SafetyState(Enum):
-    """
-    Finite-state machine states for safety controller.
+    """Finite-state machine states for safety controller.
 
-    State transitions are deterministic and based on input validation
-    and system health indicators.
+    State transitions are deterministic and based on input validation and system health
+    indicators.
     """
 
     # Normal operation - all inputs valid, system healthy
@@ -88,8 +86,7 @@ class SafetyState(Enum):
 
 
 class PacingMode(Enum):
-    """
-    Pacing modes determine the aggressiveness of intervention.
+    """Pacing modes determine the aggressiveness of intervention.
 
     Modes are selected based on rhythm classification, HSI, and confidence.
     """
@@ -111,8 +108,7 @@ class PacingMode(Enum):
 
 
 class SafetyController:
-    """
-    Finite-state safety controller for pacing decisions.
+    """Finite-state safety controller for pacing decisions.
 
     This controller ensures all pacing commands are safe and appropriate.
     It maintains state across decisions and can degrade gracefully.
@@ -138,8 +134,7 @@ class SafetyController:
         hsi_score: float,
         heart_rate: float,
     ) -> SafetyState:
-        """
-        Evaluate current safety state based on inputs.
+        """Evaluate current safety state based on inputs.
 
         State Transition Logic:
         - NORMAL: All inputs valid and within normal ranges
@@ -202,8 +197,7 @@ class SafetyController:
         return SafetyState.NORMAL
 
     def update_state(self, new_state: SafetyState):
-        """
-        Update safety state with hysteresis.
+        """Update safety state with hysteresis.
 
         Medical Safety: Requires multiple consecutive good cycles to upgrade
         state, but degrades immediately on any concerning input.
@@ -255,8 +249,7 @@ class SafetyController:
 
 
 class AdaptivePacingPolicy:
-    """
-    Predictive adaptive pacing policy.
+    """Predictive adaptive pacing policy.
 
     This policy determines optimal pacing parameters based on:
     - Current rhythm classification
@@ -282,8 +275,7 @@ class AdaptivePacingPolicy:
         hsi_trend: str,
         safety_state: SafetyState,
     ) -> PacingMode:
-        """
-        Determine appropriate pacing mode.
+        """Determine appropriate pacing mode.
 
         Decision Logic:
         1. Emergency state -> EMERGENCY mode
@@ -350,8 +342,7 @@ class AdaptivePacingPolicy:
         hsi_score: float,
         pacing_mode: PacingMode,
     ) -> float:
-        """
-        Compute target pacing rate.
+        """Compute target pacing rate.
 
         Rate Determination Logic:
         - EMERGENCY: Safe default (70 BPM)
@@ -431,15 +422,15 @@ class AdaptivePacingPolicy:
         target = self._clamp_rate(target)
 
         logger.info(
-            f"Target pacing rate: {target:.1f} BPM (from {current_hr:.1f}, mode={pacing_mode.value})"
+            f"Target pacing rate: {target:.1f} BPM (from {current_hr:.1f}, "
+            f"mode={pacing_mode.value})"
         )
         return target
 
     def compute_pacing_amplitude(
         self, pacing_mode: PacingMode, hsi_score: float
     ) -> float:
-        """
-        Compute pacing amplitude.
+        """Compute pacing amplitude.
 
         Amplitude Logic:
         - Higher HSI = lower amplitude (less intervention needed)
@@ -491,13 +482,13 @@ class AdaptivePacingPolicy:
         )
 
         logger.info(
-            f"Pacing amplitude: {amplitude:.2f} mA (HSI={hsi_score:.1f}, mode={pacing_mode.value})"
+            f"Pacing amplitude: {amplitude:.2f} mA (HSI={hsi_score:.1f}, "
+            f"mode={pacing_mode.value})"
         )
         return amplitude
 
     def _clamp_rate(self, rate: float) -> float:
-        """
-        Clamp rate to absolute safe bounds.
+        """Clamp rate to absolute safe bounds.
 
         Medical Safety: NEVER allow rates outside safe physiological range.
 
@@ -544,7 +535,9 @@ class AdaptivePacingPolicy:
             Dictionary with pacing command and metadata
         """
         logger.info(
-            f"Computing pacing command: rhythm={rhythm_class}, confidence={rhythm_confidence:.2f}, HSI={hsi_score:.1f}, HR={heart_rate:.1f}"
+            f"Computing pacing command: rhythm={rhythm_class}, "
+            f"confidence={rhythm_confidence:.2f}, HSI={hsi_score:.1f}, "
+            f"HR={heart_rate:.1f}"
         )
 
         # Step 1: Evaluate safety state
@@ -579,14 +572,17 @@ class AdaptivePacingPolicy:
             "pacing_mode": pacing_mode.value,
             "safety_state": safety_state.value,
             "safety_checks": {
-                "rate_within_bounds": ABSOLUTE_MIN_PACING_RATE
-                <= target_rate
-                <= ABSOLUTE_MAX_PACING_RATE,
-                "amplitude_within_bounds": ABSOLUTE_MIN_PACING_AMPLITUDE
-                <= amplitude
-                <= ABSOLUTE_MAX_PACING_AMPLITUDE,
-                "confidence_acceptable": rhythm_confidence
-                >= CONFIDENCE_THRESHOLD_MEDIUM,
+                "rate_within_bounds": (
+                    ABSOLUTE_MIN_PACING_RATE <= target_rate <= ABSOLUTE_MAX_PACING_RATE
+                ),
+                "amplitude_within_bounds": (
+                    ABSOLUTE_MIN_PACING_AMPLITUDE
+                    <= amplitude
+                    <= ABSOLUTE_MAX_PACING_AMPLITUDE
+                ),
+                "confidence_acceptable": (
+                    rhythm_confidence >= CONFIDENCE_THRESHOLD_MEDIUM
+                ),
                 "hsi_acceptable": hsi_score >= 10.0,
             },
             "rationale": self._generate_rationale(
@@ -595,7 +591,9 @@ class AdaptivePacingPolicy:
         }
 
         logger.info(
-            f"Pacing command: enabled={command['pacing_enabled']}, rate={target_rate:.1f}, amp={amplitude:.2f}, mode={pacing_mode.value}, state={safety_state.value}"
+            f"Pacing command: enabled={command['pacing_enabled']}, "
+            f"rate={target_rate:.1f}, amp={amplitude:.2f}, "
+            f"mode={pacing_mode.value}, state={safety_state.value}"
         )
 
         return command
@@ -608,8 +606,7 @@ class AdaptivePacingPolicy:
         pacing_mode: PacingMode,
         safety_state: SafetyState,
     ) -> str:
-        """
-        Generate human-readable rationale for decision.
+        """Generate human-readable rationale for decision.
 
         Medical Safety: Transparency is critical for medical devices.
         All decisions must be explainable.
@@ -653,7 +650,8 @@ class AdaptivePacingPolicy:
             parts.append(f"Fair cardiovascular status (HSI={hsi_score:.1f})")
         else:
             parts.append(
-                f"Poor cardiovascular status (HSI={hsi_score:.1f}) - conservative approach"
+                f"Poor cardiovascular status (HSI={hsi_score:.1f}) - "
+                "conservative approach"
             )
 
         # Trend
@@ -683,8 +681,7 @@ pacing_policy = AdaptivePacingPolicy()
 
 
 def process_pacing_decision(rhythm_data: Dict, hsi_data: Dict) -> Dict:
-    """
-    Process pacing decision from rhythm and HSI data.
+    """Process pacing decision from rhythm and HSI data.
 
     Medical Safety: This is the main entry point for pacing decisions.
     Includes comprehensive input validation and error handling.
@@ -756,7 +753,9 @@ def process_pacing_decision(rhythm_data: Dict, hsi_data: Dict) -> Dict:
                     "confidence_acceptable": False,
                     "hsi_acceptable": False,
                 },
-                "rationale": f"Error occurred: {str(e)} - using safe fallback (no pacing)",
+                "rationale": (
+                    f"Error occurred: {str(e)} - using safe fallback (no pacing)"
+                ),
             },
             "timestamp": datetime.utcnow().isoformat() + "Z",
         }

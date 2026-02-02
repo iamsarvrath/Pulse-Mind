@@ -1,0 +1,9 @@
+# Ignore dataset documentation with invalid HTML
+ai_training/data/
+**/mitdbdir/
+.mypy_cache/
+.pytest_cache/
+**/__pycache__/
+node_modules/
+dist/
+build/

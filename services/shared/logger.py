@@ -1,11 +1,12 @@
-"""
-Centralized logging utility for PulseMind services.
+"""Centralized logging utility for PulseMind services.
+
 Provides structured JSON logging with consistent formatting.
 """
 
 import logging
 import sys
 from datetime import datetime
+
 from pythonjsonlogger import jsonlogger
 
 
@@ -21,8 +22,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
 
 
 def setup_logger(service_name: str, level: str = "INFO") -> logging.Logger:
-    """
-    Setup structured JSON logger for a service.
+    """Setup structured JSON logger for a service.
 
     Args:
         service_name: Name of the service
@@ -44,6 +44,6 @@ def setup_logger(service_name: str, level: str = "INFO") -> logging.Logger:
     logger.addHandler(handler)
 
     # Add service name to all log records
-    logger = logging.LoggerAdapter(logger, {"service": service_name})
+    adapter = logging.LoggerAdapter(logger, {"service": service_name})
 
-    return logger
+    return adapter  # type: ignore[return-value]

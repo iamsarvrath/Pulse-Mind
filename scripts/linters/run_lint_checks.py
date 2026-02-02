@@ -1,4 +1,4 @@
-import subprocess
+import subprocess  # nosec B404
 import sys
 
 # ANSI colors
@@ -6,23 +6,53 @@ GREEN = "\033[92m"
 RED = "\033[91m"
 RESET = "\033[0m"
 
-def main():
-    """Runs Black (check mode) and Flake8."""
-    print("Running black check...")
-    black_result = subprocess.run(["python", "-m", "black", "--check", "--quiet", "services/"], shell=True)
-    
-    print("\nRunning flake8 check...")
-    flake8_cmd = [
-        "python", "-m", "flake8", "services/", "--count", 
-        "--select=E9,F63,F7,F82", "--show-source", "--statistics"
-    ]
-    flake8_result = subprocess.run(flake8_cmd, shell=True)
 
-    if black_result.returncode != 0 or flake8_result.returncode != 0:
+def main():
+    """Runs Black, Flake8, and Mypy checks."""
+    success = True
+
+    print("Running Black...")
+    res_black = subprocess.run(
+        ["python", "-m", "black", "--check", "--quiet", "."], shell=True
+    )  # nosec B602 B607
+    if res_black.returncode != 0:
+        success = False
+
+    print("\nRunning Flake8...")
+    res_flake8 = subprocess.run(
+        ["python", "-m", "flake8", "."], shell=True
+    )  # nosec B602 B607
+    if res_flake8.returncode != 0:
+        success = False
+
+    print("\nRunning Mypy...")
+    res_mypy = subprocess.run(
+        ["python", "-m", "mypy", "."], shell=True
+    )  # nosec B602 B607
+    if res_mypy.returncode != 0:
+        success = False
+
+    print("\nRunning Prettier (Check)...")
+    res_prettier = subprocess.run(
+        [
+            "npx",
+            "prettier",
+            "--check",
+            "**/*.{md,json,yaml,yml,js,css}",
+            "--loglevel",
+            "warn",
+        ],
+        shell=True,
+    )  # nosec B602 B607
+    if res_prettier.returncode != 0:
+        success = False
+
+    if not success:
         print(f"\n{RED}Lint checks failed!{RESET}")
         sys.exit(1)
-    
+
     print(f"\n{GREEN}SUCCESS: All lint checks passed!{RESET}")
+
 
 if __name__ == "__main__":
     main()

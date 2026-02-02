@@ -1,24 +1,24 @@
-"""
-Unit tests for HSI (Hemodynamic Surrogate Index) computation module.
+"""Unit tests for HSI (Hemodynamic Surrogate Index) computation module.
 
 Tests normalization functions, HSI computation, trend analysis, and stateless behavior.
 """
 
 import unittest
 from datetime import datetime, timedelta
+
 from hsi_computer import (
+    HR_OPTIMAL,
+    HRV_MAX,
+    HRV_MIN,
+    PULSE_AMP_MAX,
+    PULSE_AMP_MIN,
+    compute_hsi,
+    compute_trend,
+    interpret_hsi,
     normalize_heart_rate,
     normalize_hrv,
     normalize_pulse_amplitude,
-    compute_hsi,
-    interpret_hsi,
-    compute_trend,
     process_hsi_computation,
-    HR_OPTIMAL,
-    HRV_MIN,
-    HRV_MAX,
-    PULSE_AMP_MIN,
-    PULSE_AMP_MAX,
 )
 
 
