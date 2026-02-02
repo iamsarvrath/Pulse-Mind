@@ -33,15 +33,10 @@ public:
      * Process a received pacing command JSON.
      */
     void processCommand(const char* jsonPayload) {
-        Serial.print("[Pacing] RX Command: ");
-        Serial.println(jsonPayload);
-
         DynamicJsonDocument doc(512);
         DeserializationError error = deserializeJson(doc, jsonPayload);
 
         if (error) {
-            Serial.print("[Pacing] JSON Parsing Failed: ");
-            Serial.println(error.c_str());
             return; // Ignore invalid JSON
         }
 
@@ -57,13 +52,6 @@ public:
             if (targetRateBpm > 200) targetRateBpm = 200;
             
             paceInterval = 60000 / targetRateBpm;
-            
-            Serial.println("[Pacing] Updated Params:");
-            Serial.print("  - Enabled: "); Serial.println(pacingEnabled ? "YES" : "NO");
-            Serial.print("  - Rate: "); Serial.print(targetRateBpm); Serial.println(" BPM");
-            Serial.print("  - Interval: "); Serial.print(paceInterval); Serial.println(" ms");
-        } else {
-             Serial.println("[Pacing] JSON missing 'pacing_command' key");
         }
     }
 
