@@ -179,6 +179,9 @@ def compute_hsi():
         # Add processing time
         processing_time_ms = (time.time() - start_time) * 1000
         result["processing_time_ms"] = round(processing_time_ms, 2)
+        
+        # Add timestamp (required by schema)
+        result["timestamp"] = datetime.utcnow().isoformat() + "Z"
 
         logger.info(f"HSI computed successfully in {processing_time_ms:.2f}ms")
         return jsonify(result), 200

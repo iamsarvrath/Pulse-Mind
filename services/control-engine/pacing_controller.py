@@ -23,8 +23,10 @@ from typing import Dict
 # Add shared module to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared.logger import setup_logger  # noqa: E402
+from persistence import DecisionLogger # noqa: E402
 
 logger = setup_logger("pacing-controller", level="INFO")
+decision_logger = DecisionLogger()
 
 
 # ============================================================================
@@ -73,16 +75,16 @@ class SafetyState(Enum):
     """
 
     # Normal operation - all inputs valid, system healthy
-    NORMAL = "normal"
+    NORMAL = 1
 
     # Degraded operation - some inputs questionable but within bounds
-    DEGRADED = "degraded"
+    DEGRADED = 2
 
     # Safe mode - inputs unreliable, use conservative defaults
-    SAFE_MODE = "safe_mode"
+    SAFE_MODE = 3
 
     # Emergency fallback - critical safety violation, minimal intervention
-    EMERGENCY = "emergency"
+    EMERGENCY = 4
 
 
 class PacingMode(Enum):
@@ -92,19 +94,19 @@ class PacingMode(Enum):
     """
 
     # No pacing - rhythm is normal and stable
-    MONITOR_ONLY = "monitor_only"
+    MONITOR_ONLY = 0
 
     # Minimal pacing - slight adjustments for optimization
-    MINIMAL = "minimal"
+    MINIMAL = 1
 
     # Moderate pacing - active rhythm management
-    MODERATE = "moderate"
+    MODERATE = 2
 
     # Aggressive pacing - significant intervention needed
-    AGGRESSIVE = "aggressive"
+    AGGRESSIVE = 3
 
     # Emergency pacing - life-critical intervention
-    EMERGENCY = "emergency"
+    EMERGENCY = 4
 
 
 class SafetyController:
@@ -569,8 +571,8 @@ class AdaptivePacingPolicy:
             "pacing_enabled": pacing_mode != PacingMode.MONITOR_ONLY,
             "target_rate_bpm": round(target_rate, 1),
             "pacing_amplitude_ma": round(amplitude, 2),
-            "pacing_mode": pacing_mode.value,
-            "safety_state": safety_state.value,
+            "pacing_mode": pacing_mode.name.lower(),
+            "safety_state": safety_state.name.lower(),
             "safety_checks": {
                 "rate_within_bounds": (
                     ABSOLUTE_MIN_PACING_RATE <= target_rate <= ABSOLUTE_MAX_PACING_RATE
@@ -703,7 +705,12 @@ def process_pacing_decision(rhythm_data: Dict, hsi_data: Dict) -> Dict:
         rhythm_confidence = float(rhythm_data.get("confidence", 0.0))
 
         # Extract and validate HSI data
-        hsi_score = float(hsi_data.get("hsi_score", 50.0))
+        # Handle nested 'hsi' key if present (from HSI Service response)
+        hsi_val = hsi_data.get("hsi_score")
+        if hsi_val is None:
+            hsi_val = hsi_data.get("hsi", {}).get("hsi_score", 50.0)
+        hsi_score = float(hsi_val)
+        
         hsi_trend = hsi_data.get("trend", {}).get("trend_direction", "stable")
 
         # Extract heart rate (from HSI input features)
@@ -720,7 +727,7 @@ def process_pacing_decision(rhythm_data: Dict, hsi_data: Dict) -> Dict:
             rhythm_class, rhythm_confidence, hsi_score, hsi_trend, heart_rate
         )
 
-        return {
+        result = {
             "success": True,
             "pacing_command": command,
             "input_summary": {
@@ -732,13 +739,17 @@ def process_pacing_decision(rhythm_data: Dict, hsi_data: Dict) -> Dict:
             },
             "timestamp": datetime.utcnow().isoformat() + "Z",
         }
+        
+        # Log to database
+        decision_logger.log_decision(result)
+        
+        return result
 
     except Exception as e:
         # Medical Safety: NEVER crash - return safe fallback
         logger.error(f"Error in pacing decision: {e}", exc_info=True)
 
-        # Return safe fallback command
-        return {
+        fallback_result = {
             "success": False,
             "error": str(e),
             "pacing_command": {
@@ -759,3 +770,8 @@ def process_pacing_decision(rhythm_data: Dict, hsi_data: Dict) -> Dict:
             },
             "timestamp": datetime.utcnow().isoformat() + "Z",
         }
+        
+        # Log failure to database
+        decision_logger.log_decision(fallback_result)
+        
+        return fallback_result

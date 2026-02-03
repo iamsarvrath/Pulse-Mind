@@ -18,10 +18,9 @@ import time
 from typing import Dict, List, Tuple
 
 import numpy as np
-from shared.logger import setup_logger
-
 # Add shared module to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from shared.logger import setup_logger  # noqa: E402
 
 logger = setup_logger("rhythm-classifier", level="INFO")
 

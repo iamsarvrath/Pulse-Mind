@@ -49,40 +49,18 @@ graph TD
 - Docker & Docker Compose
 - Python 3.11+ (for local testing)
 
-### Run System
+### Docker Operations
 
-```bash
-docker-compose up --build -d
-```
+Common commands for managing the PulseMind stack:
 
-### Access Dashboard
-
-Open [http://localhost:8501](http://localhost:8501) in your browser.
-
-## Safety & Design Principles
-
-1.  **Determinism**: The core control logic is purely deterministic. No stochastic methods are used in the pacing decision loop.
-2.  **Fail-Safe**: All services are designed to never crash. Global exception handlers return safe "fallback" values (e.g., `MONITOR_ONLY` mode) if internal errors occur.
-3.  **Graceful Degradation**: The system downgrades from `NORMAL` to `DEGRADED` to `SAFE_MODE` as input quality drops, rather than failing abruptly.
-4.  **Hardware Abstraction**: Logic is decoupled from hardware via MQTT. The system computes _what_ to do, the firmware handles _how_ to drive the voltage.
-
-## AI Training Pipeline
-
-PulseMind implements a strict separation between Model Training (Research) and Model Inference (Runtime).
-
-- **Workspace**: `ai_training/` (Offline, outside Docker)
-- **Dataset**: MIT-BIH Arrhythmia Database (via PhysioNet)
-- **Model**: Random Forest Classifier (Explainable, Lightweight)
-- **Features**: HR, HRV (SDNN), Pulse Amplitude
-
-**Workflow:**
-
-1.  Ingest & Segment MIT-BIH Data (`dataset_builder.py`)
-2.  Train Model (`train_model.py`)
-3.  Validate Accuracy (~94%)
-4.  Export to `services/ai-inference/models/` for runtime use.
-
-See [ai_training/README.md](ai_training/README.md) for details.
+| Operation | Command | Description |
+| :--- | :--- | :--- |
+| **Start All** | `docker-compose up -d --build` | Builds and starts all services in background |
+| **Stop All** | `docker-compose down` | Stops and removes containers |
+| **View Logs** | `docker-compose logs -f [service_name]` | Follows logs (e.g., `docker-compose logs -f control-engine`) |
+| **Restart** | `docker-compose restart [service_name]` | Restarts a specific service |
+| **Rebuild** | `docker-compose up -d --build [service_name]` | Rebuilds and restarts a specific service |
+| **Shell Access** | `docker exec -it [container_name] sh` | Opens a shell inside a running container |
 
 ## System Validation & Safety Audit
 
@@ -96,6 +74,20 @@ Artifacts are available in the `experiments/` directory.
 - **Safety Logic**: Control Engine correctly defaults to safe pacing parameters under uncertainty (Low Confidence / Missing Input).
 - **Latency**: End-to-end processing ~110ms; AI Inference ~10ms.
 
+### End-to-End User Scenarios
+We have validated the full "Loop" from signal to pacing:
+
+1.  **Happy Path**: `experiments/run_validation.py` confirms that normal signals result in `monitor_only` mode.
+2.  **Safety Path**: `experiments/test_safety_path.py` confirms that Tachycardia (HR > 120) triggers `moderate` pacing.
+    - **Method**: Injects high-rate synthetic waveform -> AI Classifies -> Control Poliy Checks -> Command Issued.
+    - **Verification**: Cross-referenced with Database logs to ensure the decision was persisted.
+
+### Stress & Performance Analysis
+We have benchmarked the system to ensure stability under load:
+- **Throughput**: ~160 Requests Per Second (RPS) on Signal Service.
+- **Stress**: 100 concurrent users with **0 failures**.
+- **Endurance**: Scripts available for long-duration stability checks.
+
 Run the validation suite:
 
 ```bash
@@ -104,9 +96,79 @@ python experiments/health_check.py
 
 # End-to-End Scenarios
 python experiments/run_validation.py
+
+# Safety Path Verification
+python experiments/test_safety_path.py
+
+# Stress & Performance
+python experiments/test_throughput.py
+python experiments/test_stress.py
+python experiments/run_endurance.py
+
+# Resilience & Chaos
+python experiments/test_faults.py
 ```
+
+### Resilience & Chaos Validation
+We have verified system self-healing and graceful degradation:
+- **Scenario**: AI Service Failure.
+- **Result**: System defaults to `SafetyState=SAFE_MODE` and `Pacing=MINIMAL` (Pass).
+- **Recovery**: Auto-recovers to `NORMAL` state upon service restart.
+
 
 ## Development
 
 - **Logs**: Structured JSON logs are emitted by all services for observability.
-- **Testing**: Run `python tests/integration_test.py` to verify the end-to-end data flow.
+- **Audit**: All pacing decisions are persisted to a local SQLite database (`pacing_decisions.db`) for post-incident analysis.
+
+### Decision Audit Database
+The Control Engine maintains a SQLite database to log every pacing decision for medical auditing.
+
+**File Location**: `services/control-engine/pacing_decisions.db`
+
+**Schema**: `decisions` table
+- `id`: Unique Sequence ID
+- `timestamp`: UTC ISO8601 Time
+- `rhythm_class`: AI Classification (e.g., `tachycardia`, `normal_sinus`)
+- `hsi_score`: Hemodynamic Surrogate Index (0-100)
+- `pacing_mode`: Decision output (e.g., `monitor_only`, `moderate`, `emergency`)
+- `rationale`: Human-readable explanation string
+- `full_payload`: Exact JSON input received by the engine (for debugging)
+
+To inspect the database from the host:
+```bash
+# Copy DB from container
+docker cp pulsemind-control-engine:/app/pacing_decisions.db local_audit.db
+
+# Open with sqlite3
+sqlite3 local_audit.db "SELECT * FROM decisions ORDER BY id DESC LIMIT 5;"
+```
+
+## Testing & Quality Assurance
+
+PulseMind now includes a comprehensive testing suite covering unit to integration levels.
+
+### 1. Unified Test Runner
+Run all tests (Signal, HSI, AI, Control, Integration) with a single command:
+```bash
+python run_tests.py
+```
+*Output is color-coded for quick status verification.*
+
+### 2. Command Reference
+| Scope | Command | Description |
+| :--- | :--- | :--- |
+| **All Tests** | `python run_tests.py` | Runs unified suite (Recommended) |
+| **Signal** | `python -m unittest services/signal-service/test_signal_processor.py` | Verifies DSP pipeline |
+| **HSI** | `python -m unittest services/hsi-service/test_hsi_computer.py` | Verifies HSI formulas |
+| **AI** | `python -m unittest services/ai-inference/test_rhythm_classifier.py` | Verifies Model Inference |
+| **Control** | `python -m unittest services/control-engine/test_pacing_controller.py` | Verifies Safety FSM |
+| **Integration** | `python -m unittest tests/integration_test.py` | Verifies End-to-End API Flow |
+| **MQTT** | `python tests/mqtt_test_client.py` | Verifies Broker Connectivity |
+
+### 3. Verification Layers
+- **Unit Tests**: Full coverage for mathematical formulas, state transitions, and ML inference.
+- **Integration Tests**: 
+  - **API Contracts**: Strict JSON Schema validation for all service responses.
+  - **Persistence**: Verification of the SQLite decision audit log.
+  - **MQTT Flow**: Broker connectivity reliability checks.

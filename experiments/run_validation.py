@@ -9,12 +9,20 @@ import requests
 # Configuration
 SERVICES = {
     "signal": "http://localhost:8001",
+    "hsi": "http://localhost:8002",
     "ai": "http://localhost:8003",
     "control": "http://localhost:8004",
 }
 
 OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "results.json")
 LATENCY_FILE = os.path.join(os.path.dirname(__file__), "latency.md")
+
+# ANSI Colors
+GREEN = "\033[92m"
+RED = "\033[91m"
+BLUE = "\033[94m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
 
 
 def generate_signal(rhythm_type, duration_sec=10, fs=100):
@@ -49,7 +57,7 @@ def generate_signal(rhythm_type, duration_sec=10, fs=100):
 
 
 def run_scenario(name, rhythm_type, hsi_condition):
-    print(f"\n--- Running Scenario: {name} ---")
+    print(f"\n{BLUE}--- Running Scenario: {name} ---{RESET}")
     results = {
         "scenario": name,
         "timestamp": datetime.utcnow().isoformat(),
@@ -69,7 +77,7 @@ def run_scenario(name, rhythm_type, hsi_condition):
         t1 = time.time()
 
         if resp_sig.status_code != 200:
-            print(f"Signal Service Failed: {resp_sig.text}")
+            print(f"{RED}Signal Service Failed: {resp_sig.text}{RESET}")
             results["steps"]["signal"] = {"error": resp_sig.text}
             return results
 
@@ -78,8 +86,8 @@ def run_scenario(name, rhythm_type, hsi_condition):
         results["steps"]["signal"] = feat_data
         latency_sig = (t1 - t0) * 1000
         print(
-            f"Got features: HR={features.get('heart_rate_bpm'):.1f} "
-            f"(Latency: {latency_sig:.1f}ms)"
+            f"{GREEN}Got features: HR={features.get('heart_rate_bpm'):.1f} "
+            f"(Latency: {latency_sig:.1f}ms){RESET}"
         )
 
         # 2. AI Inference
@@ -114,17 +122,36 @@ def run_scenario(name, rhythm_type, hsi_condition):
                 "confidence_level": "low",
             }
 
-        # 3. Control Engine
-        # Synthesize HSI based on condition
-        hsi_data = {
-            "hsi_score": 95.0,
-            "trend": {"trend_direction": "stable"},
-            "input_features": features,
-        }
+        # 2b. HSI Service
+        print("Sending features to HSI Service...")
+        t_hsi_start = time.time()
+        try:
+            resp_hsi = requests.post(
+                f"{SERVICES['hsi']}/compute-hsi",
+                json={"features": features},
+                timeout=5,
+            )
+            hsi_data = resp_hsi.json()
+            latency_hsi = (time.time() - t_hsi_start) * 1000
+            
+            # Ensure input_features is present for Control Engine
+            if "input_features" not in hsi_data:
+                hsi_data["input_features"] = features
 
-        if hsi_condition == "declining":
-            hsi_data["hsi_score"] = 65.0
-            hsi_data["trend"]["trend_direction"] = "decreasing"
+            hsi_val = hsi_data.get("hsi", {}).get("hsi_score", "N/A")
+            print(f"HSI Computed: Score={hsi_val} (Latency: {latency_hsi:.1f}ms)")
+
+        except Exception as e:
+            print(f"HSI Service Unavailable: {e}")
+            # Fallback for validation script continuity
+            hsi_data = {
+                "hsi": {"hsi_score": 50.0},
+                "trend": {"trend_direction": "stable"},
+                "input_features": features
+            }
+            latency_hsi = 0
+
+        results["steps"]["hsi"] = hsi_data
 
         print("Sending data to Control Engine...")
         t3 = time.time()
@@ -150,6 +177,7 @@ def run_scenario(name, rhythm_type, hsi_condition):
         results["latency"] = {
             "signal_ms": latency_sig,
             "ai_ms": latency_ai,
+            "hsi_ms": latency_hsi, 
             "control_ms": latency_ctrl,
             "total_ms": total_latency,
         }
@@ -175,9 +203,9 @@ def main():
     ]
 
     # Run Standard Scenarios
-    print("Running scenarios (5 iterations each)...")
+    print(f"\n{BOLD}Running scenarios (5 iterations each)...{RESET}")
     for i in range(5):
-        print(f"--- Iteration {i+1}/5 ---")
+        print(f"\n{BOLD}--- Iteration {i+1}/5 ---{RESET}")
         for name, rhythm, hsi in scenarios:
             res = run_scenario(name, rhythm, hsi)
             all_results.append(res)
@@ -196,7 +224,7 @@ def main():
         f.write("|---|---|---|---|\n")
 
         if latencies:
-            for key in ["signal_ms", "ai_ms", "control_ms", "total_ms"]:
+            for key in ["signal_ms", "ai_ms", "hsi_ms", "control_ms", "total_ms"]:
                 vals = [lat[key] for lat in latencies if key in lat]
                 if vals:
                     f.write(
