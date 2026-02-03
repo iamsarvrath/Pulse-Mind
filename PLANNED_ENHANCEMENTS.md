@@ -1,5 +1,7 @@
 # Pulse-Mind Roadmap Issues
 
+---
+
 ## Phase 1: Testing & Quality Assurance ✅ COMPLETE
 
 ### Issue 1.1: Establish Unit Testing Coverage ✅
@@ -192,9 +194,42 @@
 
 ---
 
-## Phase 6: Regulation & Production
+## Phase 6: Clinical Features & UX
 
-### Issue 6.1: Regulatory Submission Preparation
+### Issue 6.1: Upgrade Clinical Dashboard UX
+
+**Description:** Create a production-grade user interface.
+**Tasks:**
+
+- [ ] Implement Live PPG Waveform rendering (Canvas/WebGL).
+- [ ] Create detailed Patient Management profiles.
+- [ ] Upgrade Alert System with configurable thresholds and acknowledgment.
+- [ ] Ensure Responsive Design and Accessibility (WCAG 2.1 AA).
+
+### Issue 6.2: Develop Mobile Companion App
+
+**Description:** Enable mobile monitoring for patients/clinicians.
+**Tasks:**
+
+- [ ] Build iOS/Android App (React Native/Flutter).
+- [ ] Implement Real-Time Monitoring via MQTT/WebSockets.
+- [ ] Add Offline Mode support.
+- [ ] Integrate Push Notifications for alerts.
+
+### Issue 6.3: Clinical Decision Support System (CDSS)
+
+**Description:** AI-assisted help for clinicians.
+**Tasks:**
+
+- [ ] Implement Treatment Recommendation Logic based on guidelines.
+- [ ] Develop Patient Risk Scoring algorithms.
+- [ ] Add Drug-Device interaction checks (if applicable).
+
+---
+
+## Phases 7 & 8: Regulation & Production
+
+### Issue 7.1: Regulatory Submission Preparation
 
 **Description:** Compile documentation for FDA/CE approval.
 **Tasks:**
@@ -204,7 +239,7 @@
 - [ ] Complete ISO 14971 Risk Management File.
 - [ ] Prepare Software Verification & Validation Reports.
 
-### Issue 6.2: Production Readiness & Go-Live
+### Issue 8.1: Production Readiness & Go-Live
 
 **Description:** Final preparations for launch.
 **Tasks:**
