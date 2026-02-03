@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Create a non-root user
+RUN useradd -m -u 1000 appuser
+
 WORKDIR /app
 
 COPY control-engine/requirements.txt .
@@ -10,9 +13,14 @@ COPY shared /app/shared
 
 COPY control-engine/ .
 
+# Change ownership to the non-root user
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 8004
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:8004/health')"
+  CMD python -c "import requests; requests.get('http://localhost:8004/health', timeout=5)"
 
-CMD ["python", "main.py"]
+CMD ["python", "control_engine_service.py"]

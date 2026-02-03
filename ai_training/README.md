@@ -35,6 +35,7 @@ The trained model `pulsemind_rf_model.pkl` is exported to `services/ai-inference
 The service loads this model on startup. If the model is missing, a fallback rule-based classifier is used.
 
 **Strict Separation:**
+
 - Training code (`ai_training/`) is NEVER imported by services.
 - Only the serialized model (`.pkl`) crosses the boundary.
 - `services/ai-inference/rhythm_classifier.py` handles model loading and inference.

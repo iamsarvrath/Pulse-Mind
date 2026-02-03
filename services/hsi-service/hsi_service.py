@@ -1,14 +1,15 @@
-import sys
 import os
-from datetime import datetime
-from flask import Flask, jsonify, request
+import sys
 import time
+from datetime import datetime
+
+from flask import Flask, jsonify, request
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
-from shared.shutdown import register_shutdown_handler
-from hsi_computer import process_hsi_computation
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from hsi_computer import process_hsi_computation  # noqa: E402
+from shared.logger import setup_logger  # noqa: E402
+from shared.shutdown import register_shutdown_handler  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("hsi-service", level="INFO")
@@ -47,9 +48,8 @@ def root():
 
 @app.route('/compute-hsi', methods=['POST'])
 def compute_hsi():
-    """
-    Compute Hemodynamic Surrogate Index from PPG-derived features.
-    
+    """Compute Hemodynamic Surrogate Index from PPG-derived features.
+
     Expected JSON payload:
     {
         "features": {
@@ -140,19 +140,30 @@ def compute_hsi():
         # Validate required fields in previous_measurement
         if 'hsi_score' not in previous_measurement or 'timestamp' not in previous_measurement:
             logger.warning("previous_measurement missing required fields")
-            return jsonify({
-                "success": False,
-                "error": "previous_measurement must contain 'hsi_score' and 'timestamp'"
-            }), 400
-    
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": (
+                            "previous_measurement must contain "
+                            "'hsi_score' and 'timestamp'"
+                        ),
+                    }
+                ),
+                400,
+            )
+
     # Process HSI computation
     try:
         result = process_hsi_computation(features, previous_measurement, timestamp)
         
         # Add processing time
         processing_time_ms = (time.time() - start_time) * 1000
-        result['processing_time_ms'] = round(processing_time_ms, 2)
+        result["processing_time_ms"] = round(processing_time_ms, 2)
         
+        # Add timestamp (required by schema)
+        result["timestamp"] = datetime.utcnow().isoformat() + "Z"
+
         logger.info(f"HSI computed successfully in {processing_time_ms:.2f}ms")
         return jsonify(result), 200
         
@@ -176,4 +187,4 @@ def compute_hsi():
 if __name__ == '__main__':
     register_shutdown_handler(logger)
     logger.info("Starting hsi-service on port 8002")
-    app.run(host='0.0.0.0', port=8002)
+    app.run(host="0.0.0.0", port=8002)  # nosec B104

@@ -1,15 +1,21 @@
-import sys
 import os
+import sys
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict
+
+import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
-import requests
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from shared.logger import setup_logger  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("api-gateway", level="INFO")
@@ -32,9 +38,8 @@ SERVICES = {
     reraise=True
 )
 def call_service_with_retry(url: str, timeout: int = 5) -> Dict:
-    """
-    Make HTTP request with retry logic.
-    
+    """Make HTTP request with retry logic.
+
     Args:
         url: Service URL to call
         timeout: Request timeout in seconds
@@ -45,7 +50,8 @@ def call_service_with_retry(url: str, timeout: int = 5) -> Dict:
     logger.info(f"Calling service: {url}")
     response = requests.get(url, timeout=timeout)
     response.raise_for_status()
-    return response.json()
+    result: Dict = response.json()
+    return result
 
 
 @app.get("/health")
@@ -77,9 +83,8 @@ async def root():
 
 @app.get("/services")
 async def list_services():
-    """
-    List all available services with their health status.
-    
+    """List all available services with their health status.
+
     Returns:
         Dictionary of services with their status
     """
@@ -123,9 +128,8 @@ async def list_services():
 
 @app.get("/services/{service_name}")
 async def get_service_info(service_name: str):
-    """
-    Get information about a specific service.
-    
+    """Get information about a specific service.
+
     Args:
         service_name: Name of the service
     

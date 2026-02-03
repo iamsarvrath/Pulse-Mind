@@ -1,10 +1,9 @@
-import streamlit as st
-import requests
-import pandas as pd
+import time
+
 import numpy as np
 import plotly.graph_objs as go
-import time
-from datetime import datetime
+import requests
+import streamlit as st
 
 # ==========================================
 # Configuration
@@ -54,8 +53,8 @@ auto_refresh = st.sidebar.checkbox("Auto Refresh", value=True)
 st.sidebar.markdown("---")
 
 def generate_mock_signal(rhythm_type):
-    """
-    Generate valid PPG signals based on selected type.
+    """Generate valid PPG signals based on selected type.
+
     Includes time-shift for animation effect.
     """
     # Create time vector
@@ -176,8 +175,9 @@ try:
         if hsi_resp.status_code == 200 and ai_resp.status_code == 200:
             full_hsi_data = hsi_resp.json() # contains hsi_score and trend
             # Add input_features if missing, Control Engine expects it nested sometimes
-            # The control engine expects 'input_features' inside hsi_data? 
-            # Checked control-engine code: input_features = hsi_data.get("input_features", {})
+            # The control engine expects 'input_features' inside hsi_data?
+            # Checked control-engine code:
+            # input_features = hsi_data.get("input_features", {})
             # So we add it manually here.
             full_hsi_data["input_features"] = features
 
@@ -191,7 +191,9 @@ try:
             )
             if ctrl_resp.status_code == 200:
                 pacing_cmd = ctrl_resp.json().get("pacing_command", {})
-                pacing_status = f"{pacing_cmd.get('pacing_mode', 'off').upper()} @ {pacing_cmd.get('target_rate_bpm', 0)} BPM"
+                pacing_mode = pacing_cmd.get("pacing_mode", "off").upper()
+                target_rate = pacing_cmd.get("target_rate_bpm", 0)
+                pacing_status = f"{pacing_mode} @ {target_rate} BPM"
 
 except Exception as e:
     st.error(f"Data Fetch Error: {e}")

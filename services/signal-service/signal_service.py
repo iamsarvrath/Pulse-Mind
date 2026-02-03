@@ -1,14 +1,15 @@
-import sys
 import os
-from datetime import datetime
-from flask import Flask, jsonify, request
+import sys
 import time
+from datetime import datetime
+
+from flask import Flask, jsonify, request
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
-from shared.shutdown import register_shutdown_handler
-from signal_processor import process_ppg_signal
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from shared.logger import setup_logger  # noqa: E402
+from shared.shutdown import register_shutdown_handler  # noqa: E402
+from signal_processor import process_ppg_signal  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("signal-service", level="INFO")
@@ -47,9 +48,8 @@ def root():
 
 @app.route('/process', methods=['POST'])
 def process_signal():
-    """
-    Process PPG signal and extract features.
-    
+    """Process PPG signal and extract features.
+
     Expected JSON payload:
     {
         "signal": [100, 102, 105, ...],  # Array of signal values
@@ -130,8 +130,11 @@ def process_signal():
         
         # Add processing time to metadata
         processing_time_ms = (time.time() - start_time) * 1000
-        result['metadata']['processing_time_ms'] = round(processing_time_ms, 2)
+        result["metadata"]["processing_time_ms"] = round(processing_time_ms, 2)
         
+        # Add timestamp (required by schema)
+        result["timestamp"] = datetime.utcnow().isoformat() + "Z"
+
         logger.info(f"Signal processed successfully in {processing_time_ms:.2f}ms")
         return jsonify(result), 200
         
@@ -155,4 +158,4 @@ def process_signal():
 if __name__ == '__main__':
     register_shutdown_handler(logger)
     logger.info("Starting signal-service on port 8001")
-    app.run(host='0.0.0.0', port=8001)
+    app.run(host="0.0.0.0", port=8001)  # nosec B104

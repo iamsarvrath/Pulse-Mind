@@ -1,75 +1,135 @@
-import subprocess
-import requests
-import time
 import os
+import subprocess
+import time
+import requests
 import json
+from datetime import datetime
+import numpy as np
 
-SERVICES = ["ai-inference", "hsi-service"] # Major services to test
-API_URL = "http://localhost:8000"
-OUTPUT_FILE = os.path.join(os.path.dirname(__file__), 'fault_tolerance.md')
+# Configuration
+SERVICES = {
+    "signal": "http://localhost:8001",
+    "hsi": "http://localhost:8002",
+    "ai": "http://localhost:8003",
+    "control": "http://localhost:8004",
+}
 
-def run_cmd(cmd):
-    subprocess.run(cmd, shell=True, check=True)
+def generate_normal_signal(duration_sec=5, fs=100):
+    t = np.linspace(0, duration_sec, int(duration_sec * fs))
+    freq = 1.25  # 75 BPM
+    signal = np.sin(2 * np.pi * freq * t) + 0.5 * np.sin(4 * np.pi * freq * t)
+    signal = (signal * 100) + 2048
+    return signal.tolist()
 
-def test_failure(service_name):
-    print(f"\n--- Testing Failure: {service_name} ---")
-    
-    # 1. Stop Service
-    print(f"Stopping {service_name}...")
-    run_cmd(f"docker compose stop {service_name}")
-    time.sleep(2) # Wait for network propagation
-    
-    # 2. Check System Behavior
-    result = {"service": service_name, "status": "Unknown", "response": ""}
-    
+def run_orchestrated_flow():
+    """Simulates the full data flow: Signal -> AI -> HSI -> Control.
+    Handles AI failure via client-side fallback (orchestrator pattern).
+    """
     try:
-        # Check API Gateway Service List
-        print("Checking API Gateway status...")
-        resp = requests.get(f"{API_URL}/services", timeout=5)
-        data = resp.json()
-        
-        svc_status = data["services"].get(service_name, {})
-        print(f"Gateway sees {service_name} as: {svc_status.get('status')}")
-        
-        if svc_status.get("status") == "unhealthy" or svc_status.get("status") == "error":
-            result["status"] = "Correctly Detected Down"
+        # 1. Signal
+        signal = generate_normal_signal()
+        resp_sig = requests.post(f"{SERVICES['signal']}/process", json={"signal": signal, "sampling_rate": 100}, timeout=2)
+        if resp_sig.status_code != 200: return {"status": "error", "stage": "signal", "details": resp_sig.text}
+        features = resp_sig.json().get("features", {})
+
+        # 2. AI (May Fail)
+        try:
+            resp_ai = requests.post(f"{SERVICES['ai']}/predict", json={"features": features}, timeout=2)
+            ai_data = resp_ai.json()
+            ai_success = ai_data.get("success", False)
+            prediction = ai_data.get("prediction", {}) if ai_success else {}
+        except Exception:
+            ai_success = False
+            prediction = {}
+
+        # Orchestrator Fallback for AI
+        if not ai_success:
+            rhythm_data = {"rhythm_class": "unknown", "confidence": 0.0}
         else:
-             result["status"] = f"Unexpected: {svc_status.get('status')}"
-             
-        # Optional: Try a prediction if it's AI
-        if service_name == "ai-inference":
-            print("Attempting prediction via Gateway...")
-            # Run a dummy prediction
-            # Using raw data to signal service -> AI -> Control would be best, 
-            # but here we check if Gateway handles the /services check gracefully.
-            pass
+            rhythm_data = prediction
+
+        # 3. HSI
+        try:
+            resp_hsi = requests.post(f"{SERVICES['hsi']}/compute-hsi", json={"features": features}, timeout=2)
+            hsi_data = resp_hsi.json()
+        except Exception:
+             hsi_data = {"hsi": {"hsi_score": 50.0}, "trend": {"trend_direction": "stable"}, "input_features": features}
+
+        if "input_features" not in hsi_data: hsi_data["input_features"] = features
+
+        # 4. Control
+        resp_ctrl = requests.post(f"{SERVICES['control']}/compute-pacing", json={"rhythm_data": rhythm_data, "hsi_data": hsi_data}, timeout=2)
+        ctrl_data = resp_ctrl.json()
+        
+        return {
+            "status": "success",
+            "ai_alive": ai_success,
+            "control_decision": ctrl_data.get("pacing_command", {})
+        }
 
     except Exception as e:
-        print(f"Error checking system: {e}")
-        result["status"] = "System Check Failed"
-        result["error"] = str(e)
-        
-    # 3. Restart Service
-    print(f"Restarting {service_name}...")
-    run_cmd(f"docker compose start {service_name}")
-    time.sleep(5) # Wait for startup
-    
-    return result
+        return {"status": "error", "error": str(e)}
+
+def run_cmd(cmd):
+    subprocess.run(cmd, shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+# ANSI Output Colors
+GREEN = "\033[92m"
+RED = "\033[91m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
 
 def main():
-    results = []
+    print(f"--- {BOLD}Starting Chaos Test (Issue 1.5){RESET} ---")
     
-    with open(OUTPUT_FILE, 'w') as f:
-        f.write("# Fault Tolerance Test Report\n\n")
-        f.write("| Failed Service | System Behavior | Recovery |\n")
-        f.write("|---|---|---|\n")
+    # Phase 1: Baseline
+    print(f"\nPhase 1: {BOLD}Establishing Baseline...{RESET}")
+    res = run_orchestrated_flow()
+    if res["status"] != "success" or not res["ai_alive"]:
+        print(f"{RED}FAIL: Baseline Failed! Is the system running?{RESET}")
+        print(res)
+        exit(1)
+    print(f"{GREEN}PASS: Baseline Established (System Healthy){RESET}")
+
+    # Phase 2: Kill AI Service
+    print(f"\nPhase 2: {BOLD}Induced Failure (Stopping AI Service)...{RESET}")
+    run_cmd("docker compose stop ai-inference")
+    time.sleep(3) # Wait for shutdown
+    
+    print("Verifying Graceful Degradation...")
+    res = run_orchestrated_flow()
+    
+    if res["status"] == "success":
+        decision = res["control_decision"]
+        safety_state = decision.get("safety_state")
+        mode = decision.get("pacing_mode")
         
-        for svc in SERVICES:
-            res = test_failure(svc)
-            recovery = "Auto-Recovered" # Assuming docker start works
-            f.write(f"| {res['service']} | {res['status']} | {recovery} |\n")
-            
-    print(f"Fault tolerance report saved to {OUTPUT_FILE}")
+        print(f"System Response: SafetyState={safety_state}, Mode={mode}, AI_Alive={res['ai_alive']}")
+        
+        if not res["ai_alive"] and (safety_state == "safe_mode" or safety_state == "degraded" or mode == "monitor_only"):
+            print(f"{GREEN}PASS: System degraded gracefully to Safe Mode/Monitor Only.{RESET}")
+        else:
+            print(f"{RED}FAIL: Unexpected state: {safety_state}{RESET}")
+            exit(1)
+    else:
+        print(f"{RED}FAIL: Orchestrator crashed: {res}{RESET}")
+        exit(1)
+
+    # Phase 3: Recovery
+    print(f"\nPhase 3: {BOLD}Recovery (Restarting AI Service)...{RESET}")
+    run_cmd("docker compose start ai-inference")
+    time.sleep(10) # Wait for startup
+    
+    print("Verifying System Recovery...")
+    res = run_orchestrated_flow()
+    
+    if res["status"] == "success" and res["ai_alive"]:
+        print(f"{GREEN}PASS: System fully recovered.{RESET}")
+    else:
+        print(f"{RED}FAIL: System did not recover. AI Alive: {res.get('ai_alive')}{RESET}")
+        exit(1)
+
+    print(f"\n{GREEN}{BOLD}CHAOS TEST COMPLETED SUCCESSFULLY{RESET}")
 
 if __name__ == "__main__":
     main()

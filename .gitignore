@@ -40,3 +40,7 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Node.js (if using dashboard or other JS tooling)
+node_modules/
+package-lock.json

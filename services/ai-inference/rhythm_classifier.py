@@ -1,5 +1,4 @@
-"""
-Rhythm Classification Inference Module
+"""Rhythm Classification Inference Module.
 
 This module provides lightweight rhythm classification using a pretrained model.
 Designed for low-latency inference without GPU requirements.
@@ -11,18 +10,17 @@ Design Decisions:
 4. CPU-optimized - no GPU assumptions, works on any hardware
 5. Lightweight model - Random Forest for fast inference (<10ms)
 """
-import sys
-import os
-import numpy as np
-import pickle
-import threading
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime
-import time
 
+import os
+import pickle  # nosec B403
+import sys
+import time
+from typing import Dict, List, Tuple
+
+import numpy as np
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from shared.logger import setup_logger  # noqa: E402
 
 logger = setup_logger("rhythm-classifier", level="INFO")
 
@@ -52,9 +50,8 @@ CONFIDENCE_MEDIUM = 0.60  # Medium confidence threshold
 # ============================================================================
 
 class RhythmClassifier:
-    """
-    Lightweight rhythm classification model.
-    
+    """Lightweight rhythm classification model.
+
     Design: Uses Random Forest for fast, CPU-efficient inference.
     No GPU required, consistent low latency (<10ms typical).
     """
@@ -67,9 +64,8 @@ class RhythmClassifier:
         self.warmup_complete = False
         
     def create_default_model(self):
-        """
-        Create a simple rule-based model as fallback.
-        
+        """Create a simple rule-based model as fallback.
+
         This is used when the pretrained model file is missing.
         Provides basic rhythm classification based on feature thresholds.
         
@@ -119,9 +115,8 @@ class RhythmClassifier:
         return model
     
     def load_model(self) -> bool:
-        """
-        Load pretrained model from disk.
-        
+        """Load pretrained model from disk.
+
         Design Decision: Async loading pattern - this is called in a background
         thread so it doesn't block Flask startup. Service can handle requests
         immediately, even while model is loading.
@@ -134,8 +129,8 @@ class RhythmClassifier:
             
             # Check if model file exists
             if os.path.exists(self.model_path):
-                with open(self.model_path, 'rb') as f:
-                    self.model = pickle.load(f)
+                with open(self.model_path, "rb") as f:
+                    self.model = pickle.load(f)  # nosec B301
                 logger.info("Pretrained model loaded successfully")
             else:
                 logger.warning(f"Model file not found at {self.model_path}")
@@ -158,9 +153,8 @@ class RhythmClassifier:
                 return False
     
     def warm_up(self):
-        """
-        Warm up the model with dummy predictions.
-        
+        """Warm up the model with dummy predictions.
+
         Design Decision: Pre-allocate resources and JIT compile code paths
         to ensure consistent latency for real requests. First prediction is
         often slower due to lazy initialization - we do this during startup.
@@ -187,9 +181,8 @@ class RhythmClassifier:
             self.warmup_complete = False
     
     def predict(self, features: np.ndarray) -> Tuple[str, float, List[float]]:
-        """
-        Predict rhythm class from feature vector.
-        
+        """Predict rhythm class from feature vector.
+
         Design Decision: Returns both class and confidence for transparency.
         Caller can decide how to handle low-confidence predictions.
         
@@ -233,9 +226,8 @@ classifier = RhythmClassifier()
 
 
 def load_model_async():
-    """
-    Load model asynchronously in background thread.
-    
+    """Load model asynchronously in background thread.
+
     Design Decision: Non-blocking startup - Flask can start serving requests
     immediately while model loads in background. Health endpoint works even
     if model loading is slow or fails.
@@ -260,9 +252,8 @@ def classify_rhythm(
     hrv_sdnn_ms: float,
     pulse_amplitude: float
 ) -> Dict:
-    """
-    Classify cardiac rhythm from PPG-derived features.
-    
+    """Classify cardiac rhythm from PPG-derived features.
+
     Design Decision: Simple feature vector (3 features) for fast inference.
     More features would increase accuracy but also latency.
     
@@ -278,8 +269,11 @@ def classify_rhythm(
         RuntimeError: If model is not loaded
         ValueError: If features are invalid
     """
-    logger.info(f"Classifying rhythm: HR={heart_rate_bpm}, HRV={hrv_sdnn_ms}, Pulse={pulse_amplitude}")
-    
+    logger.info(
+        f"Classifying rhythm: HR={heart_rate_bpm}, "
+        f"HRV={hrv_sdnn_ms}, Pulse={pulse_amplitude}"
+    )
+
     # Validate inputs
     if heart_rate_bpm <= 0 or heart_rate_bpm > 300:
         raise ValueError(f"Invalid heart rate: {heart_rate_bpm} BPM")
@@ -319,16 +313,18 @@ def classify_rhythm(
         },
         "inference_time_ms": round(inference_time_ms, 3)
     }
-    
-    logger.info(f"Classification: {rhythm_class} (confidence: {confidence:.2f}, {inference_time_ms:.2f}ms)")
-    
+
+    logger.info(
+        f"Classification: {rhythm_class} (confidence: {confidence:.2f}, "
+        f"{inference_time_ms:.2f}ms)"
+    )
+
     return result
 
 
 def get_model_status() -> Dict:
-    """
-    Get current model loading status.
-    
+    """Get current model loading status.
+
     Design Decision: Expose model status so clients can know if predictions
     are available. Useful for health checks and debugging.
     

@@ -1,18 +1,18 @@
+import logging
 import signal
 import sys
-import logging
 import time
 
 def register_shutdown_handler(logger: logging.Logger):
-    """
-    Register signal handlers for graceful shutdown.
-    
+    """Register signal handlers for graceful shutdown.
+
     Args:
         logger: Logger instance to use
     """
     def graceful_shutdown(signum, frame):
-        logger.info(f"Received signal {signum}. Initiating graceful shutdown...")
-        # Perform any necessary cleanup here (e.g., closing DB connections, stopping threads)
+        logger.info(f"Received signal {signum}. Shutting down...")
+        # Perform any necessary cleanup here (e.g., closing DB
+        # connections, stopping threads)
         # For now, we just log and exit, but this hook allows future expansion.
         
         # Give a moment for current requests to finish (simple heuristic)

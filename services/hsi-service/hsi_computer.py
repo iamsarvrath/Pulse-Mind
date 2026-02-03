@@ -1,21 +1,20 @@
-"""
-Hemodynamic Surrogate Index (HSI) Computation Module
+"""Hemodynamic Surrogate Index (HSI) Computation Module.
 
 This module computes a time-aware hemodynamic surrogate index from PPG-derived features.
-The HSI provides an estimate of cardiovascular health status based on heart rate,
-heart rate variability, and pulse amplitude.
+The HSI provides an estimate of cardiovascular health status based on heart rate, heart
+rate variability, and pulse amplitude.
 
 All formulas and constants are documented for transparency and reproducibility.
 """
-import sys
+
 import os
-from typing import Dict, List, Optional, Tuple
+import sys
 from datetime import datetime
-import math
+from typing import Dict, Optional
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from shared.logger import setup_logger  # noqa: E402
 
 logger = setup_logger("hsi-computer", level="INFO")
 
@@ -65,9 +64,8 @@ TREND_TIME_WINDOW_SECONDS = 300.0  # 5 minutes - time window for trend rate calc
 # ============================================================================
 
 def normalize_heart_rate(hr_bpm: float) -> float:
-    """
-    Normalize heart rate to 0-1 scale with optimal weighting.
-    
+    """Normalize heart rate to 0-1 scale with optimal weighting.
+
     Formula:
     - If HR < HR_OPTIMAL: score = 1.0 - ((HR_OPTIMAL - HR) / (HR_OPTIMAL - HR_MIN))^2
     - If HR >= HR_OPTIMAL: score = 1.0 - ((HR - HR_OPTIMAL) / (HR_MAX - HR_OPTIMAL))^2
@@ -97,9 +95,8 @@ def normalize_heart_rate(hr_bpm: float) -> float:
 
 
 def normalize_hrv(hrv_sdnn_ms: float) -> float:
-    """
-    Normalize HRV (SDNN) to 0-1 scale.
-    
+    """Normalize HRV (SDNN) to 0-1 scale.
+
     Formula:
     - score = (HRV - HRV_MIN) / (HRV_MAX - HRV_MIN)
     
@@ -122,9 +119,8 @@ def normalize_hrv(hrv_sdnn_ms: float) -> float:
 
 
 def normalize_pulse_amplitude(pulse_amp: float) -> float:
-    """
-    Normalize pulse amplitude to 0-1 scale.
-    
+    """Normalize pulse amplitude to 0-1 scale.
+
     Formula:
     - score = (PULSE_AMP - PULSE_AMP_MIN) / (PULSE_AMP_MAX - PULSE_AMP_MIN)
     
@@ -155,9 +151,8 @@ def compute_hsi(
     hrv_sdnn_ms: float,
     pulse_amplitude: float
 ) -> Dict[str, float]:
-    """
-    Compute Hemodynamic Surrogate Index from PPG-derived features.
-    
+    """Compute Hemodynamic Surrogate Index from PPG-derived features.
+
     The HSI is a weighted combination of normalized cardiovascular features:
     
     Formula:
@@ -189,8 +184,11 @@ def compute_hsi(
         - normalized_hrv: Normalized HRV score (0-1)
         - normalized_pulse: Normalized pulse score (0-1)
     """
-    logger.info(f"Computing HSI: HR={heart_rate_bpm}, HRV={hrv_sdnn_ms}, Pulse={pulse_amplitude}")
-    
+    logger.info(
+        f"Computing HSI: HR={heart_rate_bpm}, "
+        f"HRV={hrv_sdnn_ms}, Pulse={pulse_amplitude}"
+    )
+
     # Normalize each feature
     norm_hr = normalize_heart_rate(heart_rate_bpm)
     norm_hrv = normalize_hrv(hrv_sdnn_ms)
@@ -203,9 +201,12 @@ def compute_hsi(
     
     # Compute final HSI score (0-100 scale)
     hsi_score = 100.0 * (hr_contrib + hrv_contrib + pulse_contrib)
-    
-    logger.info(f"HSI computed: {hsi_score:.2f} (HR:{hr_contrib:.3f}, HRV:{hrv_contrib:.3f}, Pulse:{pulse_contrib:.3f})")
-    
+
+    logger.info(
+        f"HSI computed: {hsi_score:.2f} (HR:{hr_contrib:.3f}, "
+        f"HRV:{hrv_contrib:.3f}, Pulse:{pulse_contrib:.3f})"
+    )
+
     return {
         "hsi_score": round(hsi_score, 2),
         "hr_contribution": round(hr_contrib, 4),
@@ -218,9 +219,8 @@ def compute_hsi(
 
 
 def interpret_hsi(hsi_score: float) -> str:
-    """
-    Provide human-readable interpretation of HSI score.
-    
+    """Provide human-readable interpretation of HSI score.
+
     Args:
         hsi_score: HSI score (0-100)
     
@@ -247,9 +247,8 @@ def compute_trend(
     current_measurement: Dict,
     previous_measurement: Optional[Dict] = None
 ) -> Dict:
-    """
-    Compute time-aware trend analysis between measurements.
-    
+    """Compute time-aware trend analysis between measurements.
+
     Calculates:
     1. Absolute change (delta) in HSI
     2. Rate of change (delta per minute)
@@ -305,9 +304,12 @@ def compute_trend(
     else:
         trend_direction = "declining"
         is_significant = True
-    
-    logger.info(f"Trend: {trend_direction}, delta={delta_hsi:.2f}, rate={delta_per_minute:.2f}/min")
-    
+
+    logger.info(
+        f"Trend: {trend_direction}, delta={delta_hsi:.2f}, "
+        f"rate={delta_per_minute:.2f}/min"
+    )
+
     return {
         "delta_hsi": round(delta_hsi, 2),
         "delta_per_minute": round(delta_per_minute, 3),
@@ -326,9 +328,8 @@ def process_hsi_computation(
     previous_measurement: Optional[Dict] = None,
     timestamp: Optional[str] = None
 ) -> Dict:
-    """
-    Main stateless function to compute HSI and trends.
-    
+    """Main stateless function to compute HSI and trends.
+
     This function is completely stateless - all required data must be provided
     in the input parameters. No internal state is maintained.
     
@@ -400,7 +401,10 @@ def process_hsi_computation(
             "pulse_amplitude": pulse
         }
     }
-    
-    logger.info(f"HSI computation completed: score={hsi_score:.2f}, interpretation={interpretation}")
-    
+
+    logger.info(
+        f"HSI computation completed: score={hsi_score:.2f}, "
+        f"interpretation={interpretation}"
+    )
+
     return result

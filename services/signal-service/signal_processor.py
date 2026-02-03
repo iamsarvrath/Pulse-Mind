@@ -1,18 +1,19 @@
-"""
-PPG Signal Processing Module
+"""PPG Signal Processing Module.
 
-Provides bandpass filtering, peak detection, and feature extraction
-for photoplethysmography (PPG) signals.
+Provides bandpass filtering, peak detection, and feature extraction for
+photoplethysmography (PPG) signals.
 """
+
+import os
+import sys
+from typing import Dict, List, Tuple
+
 import numpy as np
 from scipy import signal
-from typing import Dict, List, Tuple, Optional
-import sys
-import os
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from shared.logger import setup_logger  # noqa: E402
 
 logger = setup_logger("signal-processor", level="INFO")
 
@@ -24,9 +25,8 @@ def bandpass_filter(
     highcut: float = 4.0,
     order: int = 4
 ) -> np.ndarray:
-    """
-    Apply Butterworth bandpass filter to PPG signal.
-    
+    """Apply Butterworth bandpass filter to PPG signal.
+
     Typical PPG signals have frequency components between 0.5-4 Hz,
     corresponding to heart rates of 30-240 BPM.
     
@@ -53,7 +53,8 @@ def bandpass_filter(
     
     if highcut >= nyquist:
         raise ValueError(
-            f"High cutoff ({highcut} Hz) must be less than Nyquist frequency ({nyquist} Hz)"
+            f"High cutoff ({highcut} Hz) must be less than "
+            f"Nyquist frequency ({nyquist} Hz)"
         )
     
     if lowcut <= 0 or lowcut >= highcut:
@@ -70,9 +71,9 @@ def bandpass_filter(
     
     # Apply filter (using filtfilt for zero-phase filtering)
     filtered = signal.filtfilt(b, a, signal_data)
-    
-    logger.info(f"Bandpass filter applied successfully")
-    return filtered
+
+    logger.info("Bandpass filter applied successfully")
+    return np.asanyarray(filtered)
 
 
 def detect_peaks(
@@ -81,13 +82,13 @@ def detect_peaks(
     min_distance_sec: float = 0.4,
     prominence_factor: float = 0.3
 ) -> Tuple[np.ndarray, Dict]:
-    """
-    Detect peaks in PPG signal using adaptive thresholding.
-    
+    """Detect peaks in PPG signal using adaptive thresholding.
+
     Args:
         signal_data: Filtered signal array
         sampling_rate: Sampling rate in Hz
-        min_distance_sec: Minimum time between peaks in seconds (default: 0.4s = 150 BPM max)
+        min_distance_sec: Minimum time between peaks in seconds
+                          (default: 0.4s = 150 BPM max)
         prominence_factor: Prominence threshold as fraction of signal std (default: 0.3)
     
     Returns:
@@ -129,9 +130,8 @@ def extract_features(
     peaks: np.ndarray,
     sampling_rate: float
 ) -> Dict[str, float]:
-    """
-    Extract physiological features from PPG signal and detected peaks.
-    
+    """Extract physiological features from PPG signal and detected peaks.
+
     Features extracted:
     - Heart Rate (HR): Average heart rate in BPM
     - HRV (SDNN): Standard deviation of NN intervals in ms
@@ -199,9 +199,8 @@ def process_ppg_signal(
     sampling_rate: float,
     apply_filter: bool = True
 ) -> Dict:
-    """
-    Main pipeline for PPG signal processing.
-    
+    """Main pipeline for PPG signal processing.
+
     Steps:
     1. Convert to numpy array and validate
     2. Apply bandpass filter (optional)

@@ -1,14 +1,15 @@
-import sys
 import os
-from datetime import datetime
-from flask import Flask, jsonify, request
+import sys
 import time
+from datetime import datetime
+
+from flask import Flask, jsonify, request
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
-from shared.shutdown import register_shutdown_handler
-from pacing_controller import process_pacing_decision
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from pacing_controller import process_pacing_decision  # noqa: E402
+from shared.logger import setup_logger  # noqa: E402
+from shared.shutdown import register_shutdown_handler  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("control-engine", level="INFO")
@@ -32,24 +33,27 @@ def health_check():
 def root():
     """Root endpoint."""
     logger.info("Root endpoint accessed")
-    return jsonify({
-        "service": "control-engine",
-        "version": "1.0.0",
-        "status": "running",
-        "description": "Adaptive Pacing Control Engine",
-        "endpoints": {
-            "/health": "Health check",
-            "/compute-pacing": "POST - Compute pacing command from rhythm and HSI data"
-        },
-        "timestamp": datetime.utcnow().isoformat() + 'Z'
-    })
+    return jsonify(
+        {
+            "service": "control-engine",
+            "version": "1.0.0",
+            "status": "running",
+            "description": "Adaptive Pacing Control Engine",
+            "endpoints": {
+                "/health": "Health check",
+                "/compute-pacing": (
+                    "POST - Compute pacing command from rhythm and HSI data"
+                ),
+            },
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        }
+    )
 
 
 @app.route('/compute-pacing', methods=['POST'])
 def compute_pacing():
-    """
-    Compute pacing command from rhythm classification and HSI data.
-    
+    """Compute pacing command from rhythm classification and HSI data.
+
     Expected JSON payload:
     {
         "rhythm_data": {
@@ -144,7 +148,8 @@ def compute_pacing():
         }), 400
     
     # Process pacing decision
-    # Medical Safety: process_pacing_decision NEVER crashes, always returns safe response
+    # Medical Safety: process_pacing_decision NEVER crashes, always returns
+    # safe response
     try:
         result = process_pacing_decision(rhythm_data, hsi_data)
         
@@ -166,28 +171,35 @@ def compute_pacing():
         # This should never happen (process_pacing_decision catches everything)
         # But include as ultimate safety net
         logger.error(f"Unexpected error in pacing endpoint: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": f"Internal error: {str(e)}",
-            "pacing_command": {
-                "pacing_enabled": False,
-                "target_rate_bpm": 70.0,
-                "pacing_amplitude_ma": 0.0,
-                "pacing_mode": "monitor_only",
-                "safety_state": "emergency",
-                "safety_checks": {
-                    "rate_within_bounds": True,
-                    "amplitude_within_bounds": True,
-                    "confidence_acceptable": False,
-                    "hsi_acceptable": False
-                },
-                "rationale": "Critical error - using emergency fallback (no pacing)"
-            },
-            "timestamp": datetime.utcnow().isoformat() + 'Z'
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": f"Internal error: {str(e)}",
+                    "pacing_command": {
+                        "pacing_enabled": False,
+                        "target_rate_bpm": 70.0,
+                        "pacing_amplitude_ma": 0.0,
+                        "pacing_mode": "monitor_only",
+                        "safety_state": "emergency",
+                        "safety_checks": {
+                            "rate_within_bounds": True,
+                            "amplitude_within_bounds": True,
+                            "confidence_acceptable": False,
+                            "hsi_acceptable": False,
+                        },
+                        "rationale": (
+                            "Critical error - using emergency fallback (no pacing)"
+                        ),
+                    },
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                }
+            ),
+            500,
+        )
 
 
 if __name__ == '__main__':
     register_shutdown_handler(logger)
     logger.info("Starting control-engine on port 8004")
-    app.run(host='0.0.0.0', port=8004)
+    app.run(host="0.0.0.0", port=8004)  # nosec B104

@@ -1,21 +1,20 @@
-import sys
 import os
-from datetime import datetime
-from flask import Flask, jsonify, request
+import sys
 import threading
 import time
+from datetime import datetime
+
+from flask import Flask, jsonify, request
 
 # Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
-from rhythm_classifier import classify_rhythm, get_model_status, load_model_async
-
-# Initialize logger
-# Add shared module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from shared.logger import setup_logger
-from shared.shutdown import register_shutdown_handler
-from rhythm_classifier import classify_rhythm, get_model_status, load_model_async
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from rhythm_classifier import (  # noqa: E402
+    classify_rhythm,
+    get_model_status,
+    load_model_async,
+)
+from shared.logger import setup_logger  # noqa: E402
+from shared.shutdown import register_shutdown_handler  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("ai-inference", level="INFO")
@@ -33,9 +32,8 @@ model_thread.start()
 
 @app.route('/health')
 def health_check():
-    """
-    Health check endpoint for container orchestration.
-    
+    """Health check endpoint for container orchestration.
+
     Design Decision: Returns healthy even if model isn't loaded yet.
     This allows the service to start and be discovered while model loads.
     Clients should check /model-status if they need to know model state.
@@ -80,9 +78,8 @@ def root():
 
 @app.route('/model-status')
 def model_status():
-    """
-    Get detailed model status.
-    
+    """Get detailed model status.
+
     Design Decision: Separate endpoint for model status so clients can
     check if model is ready before sending prediction requests.
     """
@@ -99,9 +96,8 @@ def model_status():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """
-    Predict rhythm class from feature vector.
-    
+    """Predict rhythm class from feature vector.
+
     Expected JSON payload:
     {
         "features": {
@@ -217,11 +213,19 @@ def predict():
     except RuntimeError as e:
         # Model not loaded
         logger.error(f"Model not available: {e}")
-        return jsonify({
-            "success": False,
-            "error": "Model not loaded - please wait for model initialization or check /model-status"
-        }), 503
-        
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": (
+                        "Model not loaded - please wait for model initialization "
+                        "or check /model-status"
+                    ),
+                }
+            ),
+            503,
+        )
+
     except ValueError as e:
         # Validation error
         logger.warning(f"Feature validation error: {e}")
@@ -247,5 +251,5 @@ if __name__ == '__main__':
     # Design Decision: Give model loading thread a head start before
     # Flask starts accepting requests. Not critical, but improves UX.
     time.sleep(0.5)
-    
-    app.run(host='0.0.0.0', port=8003)
+
+    app.run(host="0.0.0.0", port=8003)  # nosec B104
