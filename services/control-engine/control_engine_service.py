@@ -17,24 +17,19 @@ logger = setup_logger("control-engine", level="INFO")
 app = Flask(__name__)
 
 
-@app.route("/health")
+@app.route('/health')
 def health_check():
     """Health check endpoint for container orchestration."""
     logger.info("Health check requested")
-    return (
-        jsonify(
-            {
-                "status": "healthy",
-                "service": "control-engine",
-                "version": "1.0.0",
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-            }
-        ),
-        200,
-    )
+    return jsonify({
+        "status": "healthy",
+        "service": "control-engine",
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow().isoformat() + 'Z'
+    }), 200
 
 
-@app.route("/")
+@app.route('/')
 def root():
     """Root endpoint."""
     logger.info("Root endpoint accessed")
@@ -55,7 +50,7 @@ def root():
     )
 
 
-@app.route("/compute-pacing", methods=["POST"])
+@app.route('/compute-pacing', methods=['POST'])
 def compute_pacing():
     """Compute pacing command from rhythm classification and HSI data.
 
@@ -78,7 +73,7 @@ def compute_pacing():
             }
         }
     }
-
+    
     Returns:
     {
         "success": true,
@@ -95,91 +90,83 @@ def compute_pacing():
         "timestamp": "...",
         "processing_time_ms": 1.23
     }
-
+    
     Medical Safety: This endpoint makes medical-grade decisions.
     All inputs are validated, all outputs are safe, never crashes.
     """
     start_time = time.time()
     logger.info("Pacing computation request received")
-
+    
     # Validate request has JSON content
     if not request.is_json:
         logger.warning("Request missing JSON content-type")
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": "Request must have Content-Type: application/json",
-                }
-            ),
-            400,
-        )
-
+        return jsonify({
+            "success": False,
+            "error": "Request must have Content-Type: application/json"
+        }), 400
+    
     try:
         data = request.get_json()
     except Exception as e:
         logger.error(f"Failed to parse JSON: {e}")
-        return jsonify({"success": False, "error": f"Invalid JSON: {str(e)}"}), 400
-
+        return jsonify({
+            "success": False,
+            "error": f"Invalid JSON: {str(e)}"
+        }), 400
+    
     # Validate required fields
-    if "rhythm_data" not in data:
+    if 'rhythm_data' not in data:
         logger.warning("Missing 'rhythm_data' field in request")
-        return (
-            jsonify(
-                {"success": False, "error": "Missing required field: 'rhythm_data'"}
-            ),
-            400,
-        )
-
-    if "hsi_data" not in data:
+        return jsonify({
+            "success": False,
+            "error": "Missing required field: 'rhythm_data'"
+        }), 400
+    
+    if 'hsi_data' not in data:
         logger.warning("Missing 'hsi_data' field in request")
-        return (
-            jsonify({"success": False, "error": "Missing required field: 'hsi_data'"}),
-            400,
-        )
-
-    rhythm_data = data["rhythm_data"]
-    hsi_data = data["hsi_data"]
-
+        return jsonify({
+            "success": False,
+            "error": "Missing required field: 'hsi_data'"
+        }), 400
+    
+    rhythm_data = data['rhythm_data']
+    hsi_data = data['hsi_data']
+    
     # Validate data types
     if not isinstance(rhythm_data, dict):
         logger.warning(f"Invalid rhythm_data type: {type(rhythm_data)}")
-        return (
-            jsonify(
-                {"success": False, "error": "Field 'rhythm_data' must be an object"}
-            ),
-            400,
-        )
-
+        return jsonify({
+            "success": False,
+            "error": "Field 'rhythm_data' must be an object"
+        }), 400
+    
     if not isinstance(hsi_data, dict):
         logger.warning(f"Invalid hsi_data type: {type(hsi_data)}")
-        return (
-            jsonify({"success": False, "error": "Field 'hsi_data' must be an object"}),
-            400,
-        )
-
+        return jsonify({
+            "success": False,
+            "error": "Field 'hsi_data' must be an object"
+        }), 400
+    
     # Process pacing decision
     # Medical Safety: process_pacing_decision NEVER crashes, always returns
     # safe response
     try:
         result = process_pacing_decision(rhythm_data, hsi_data)
-
+        
         # Add processing time
         processing_time_ms = (time.time() - start_time) * 1000
-        result["processing_time_ms"] = round(processing_time_ms, 2)
-
+        result['processing_time_ms'] = round(processing_time_ms, 2)
+        
         logger.info(f"Pacing command computed in {processing_time_ms:.2f}ms")
-
+        
         # Return appropriate status code
-        if result["success"]:
+        if result['success']:
             return jsonify(result), 200
         else:
             # Error occurred but safe fallback returned
-            logger.warning(
-                f"Pacing computation error (safe fallback): {result.get('error')}"
-            )
+            logger.warning(f"Pacing computation error (safe fallback): {result.get('error')}")
             return jsonify(result), 200  # Still 200 because we have a safe response
-
+        
     except Exception as e:
         # This should never happen (process_pacing_decision catches everything)
         # But include as ultimate safety net
@@ -212,7 +199,7 @@ def compute_pacing():
         )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     register_shutdown_handler(logger)
     logger.info("Starting control-engine on port 8004")
     app.run(host="0.0.0.0", port=8004)  # nosec B104
