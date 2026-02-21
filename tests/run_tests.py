@@ -1,7 +1,7 @@
 """Unified Test Runner for Pulse-Mind Services.
 
-This script allows running all unit tests from the project root.
-It handles the service-specific import paths automatically.
+This script allows running all unit tests.
+Modified to run from the 'tests/' folder.
 """
 
 import os
@@ -15,7 +15,7 @@ RED = "\033[91m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
 
-# Define services and their test files
+# Define services and their test files (relative to PROJECT ROOT)
 SERVICES = {
     "Signal Service": "services/signal-service/test_signal_processor.py",
     "HSI Service": "services/hsi-service/test_hsi_computer.py",
@@ -30,16 +30,15 @@ def run_service_tests(service_name, test_path):
     print(f" Running Tests for {service_name}")
     print(f"{'='*60}")
     
-    # Get absolute paths
-    root_dir = os.path.abspath(os.path.dirname(__file__))
+    # Get absolute paths - adjusted for being in 'tests/' folder
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    root_dir = os.path.abspath(os.path.join(current_dir, ".."))
     test_file = os.path.abspath(os.path.join(root_dir, test_path))
     service_dir = os.path.dirname(test_file)
     
     # Run the test file directly as a script
-    # This ensures it runs with its own directory in the path via the setUp logic in the files
-    # or we can manually set PYTHONPATH
     env = os.environ.copy()
-    env["PYTHONPATH"] = service_dir + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = service_dir + os.pathsep + os.path.join(root_dir, "services") + os.pathsep + os.path.join(root_dir, "services", "shared") + os.pathsep + env.get("PYTHONPATH", "")
     
     try:
         # We run with 'python -m unittest' but from the service directory to ensure local imports work
@@ -57,6 +56,7 @@ def run_service_tests(service_name, test_path):
 
 def main():
     print(f"Pulse-Mind Unified Test Runner")
+    print(f"Execution Context: tests/run_tests.py")
     print(f"Start Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     
     results = {}

@@ -16,6 +16,25 @@ from tenacity import (
 # Add shared module to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared.logger import setup_logger  # noqa: E402
+from shared.security_utils import decode_access_token, create_access_token # noqa: E402
+
+from fastapi import FastAPI, HTTPException, Depends, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse
+
+security = HTTPBearer()
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
+    """Validate JWT token and return user data."""
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return payload
 
 # Initialize logger
 logger = setup_logger("api-gateway", level="INFO")
@@ -81,8 +100,33 @@ async def root():
     }
 
 
+from pydantic import BaseModel
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+@app.post("/login")
+async def login(request: LoginRequest):
+    """Simple login endpoint for token generation.
+    In production, this would verify against a database or OIDC.
+    """
+    # Mock authentication for demo/phase 3
+    if request.username == "admin" and request.password == "admin123":
+        token = create_access_token(data={"sub": request.username, "role": "admin"})
+        logger.info(f"User {request.username} logged in successfully")
+        return {"access_token": token, "token_type": "bearer"}
+    elif request.username == "clinician" and request.password == "clinician123":
+        token = create_access_token(data={"sub": request.username, "role": "clinician"})
+        logger.info(f"User {request.username} logged in successfully")
+        return {"access_token": token, "token_type": "bearer"}
+    else:
+        logger.warning(f"Failed login attempt for user: {request.username}")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
 @app.get("/services")
-async def list_services():
+async def list_services(user: dict = Depends(get_current_user)):
     """List all available services with their health status.
 
     Returns:
@@ -127,7 +171,7 @@ async def list_services():
 
 
 @app.get("/services/{service_name}")
-async def get_service_info(service_name: str):
+async def get_service_info(service_name: str, user: dict = Depends(get_current_user)):
     """Get information about a specific service.
 
     Args:
@@ -163,3 +207,8 @@ async def get_service_info(service_name: str):
             status_code=503,
             detail=f"Service '{service_name}' is unavailable: {str(e)}"
         )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

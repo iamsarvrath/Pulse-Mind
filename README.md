@@ -34,7 +34,7 @@ graph TD
 
 | Service            | Port | Description                                                                     |
 | :----------------- | :--- | :------------------------------------------------------------------------------ |
-| **API Gateway**    | 8000 | Ingress point, service registry, and health monitoring.                         |
+| **API Gateway**    | 8000 | Ingress point (JWT Auth), service registry, and health monitoring.              |
 | **Signal Service** | 8001 | DSP pipeline: Bandpass filtering (0.5-4Hz), Peak Detection, Feature Extraction. |
 | **HSI Service**    | 8002 | Computes Hemodynamic Surrogate Index (0-100) and trend analysis.                |
 | **AI Inference**   | 8003 | Random Forest Classifier for rhythm detection (Normal, Brady, Tachy, etc.).     |
@@ -115,6 +115,31 @@ We have verified system self-healing and graceful degradation:
 - **Result**: System defaults to `SafetyState=SAFE_MODE` and `Pacing=MINIMAL` (Pass).
 - **Recovery**: Auto-recovers to `NORMAL` state upon service restart.
 
+## Security & Compliance (Phase 3)
+
+PulseMind is designed with a "Privacy-by-Design" architecture to meet clinical requirements for HIPAA and GDPR.
+
+### 🔐 Authentication & Authorization
+- **JWT Access Control**: All administrative and clinical API endpoints are secured via JSON Web Tokens (JWT).
+- **Role-Based Access Control (RBAC)**: Supports `Admin` and `Clinician` roles with distinct access scopes.
+- **Secure Ingress**: The API Gateway (Port 8000) acts as the enforcement point for all incoming traffic.
+
+### 🛡️ Data Protection (PHI Encryption)
+The system implements **Transparent Data Encryption (TDE)** at the application layer:
+- **Algorithm**: AES-256 (Fernet) encryption for all Protected Health Information (PHI).
+- **Fields Encrypted**: Heart rhythms, HSI scores, clinical rationales, and full decision payloads.
+- **At Rest**: Data is stored encrypted in the SQLite audit database.
+
+### 🧹 Automated Log Scrubbing
+To prevent accidental PHI leakage, the centralized logging system automatically:
+- Masks sensitive fields (e.g., `ssn`, `patient_id`).
+- Redacts raw `signal` data from logs.
+- Scrubs potential PHI keywords from human-readable message strings.
+
+### 📜 Compliance Documentation
+Detailed implementation strategies for regulatory standards are available in:
+- [COMPLIANCE_STRATEGY.md](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/COMPLIANCE_STRATEGY.md)
+
 
 ## Development
 
@@ -122,7 +147,7 @@ We have verified system self-healing and graceful degradation:
 - **Audit**: All pacing decisions are persisted to a local SQLite database (`pacing_decisions.db`) for post-incident analysis.
 
 ### Decision Audit Database
-The Control Engine maintains a SQLite database to log every pacing decision for medical auditing.
+The Control Engine maintains a SQLite database to log every pacing decision for medical auditing. **Note: PHI fields are stored encrypted using AES-256.**
 
 **File Location**: `services/control-engine/pacing_decisions.db`
 
@@ -151,24 +176,30 @@ PulseMind now includes a comprehensive testing suite covering unit to integratio
 ### 1. Unified Test Runner
 Run all tests (Signal, HSI, AI, Control, Integration) with a single command:
 ```bash
-python run_tests.py
+python tests/run_tests.py
 ```
 *Output is color-coded for quick status verification.*
 
 ### 2. Command Reference
 | Scope | Command | Description |
 | :--- | :--- | :--- |
-| **All Tests** | `python run_tests.py` | Runs unified suite (Recommended) |
+| **Login/Auth** | `POST /login` | Get JWT access token (admin/clinician) |
+| **All Tests** | `python tests/run_tests.py` | Runs unified suite (Recommended) |
+| **Integration** | `python tests/integration_test.py` | Verifies End-to-End API Flow & Safety Paths |
+| **DB Audit** | `python tests/db_integration_test.py` | Verifies Pacing Decision Persistence |
+| **Performance** | `python tests/performance_test.py` | Measures Latency & Throughput |
+| **Chaos** | `python tests/chaos_test.py` | Multi-mode (Docker/Local) Failure Simulation |
 | **Signal** | `python -m unittest services/signal-service/test_signal_processor.py` | Verifies DSP pipeline |
 | **HSI** | `python -m unittest services/hsi-service/test_hsi_computer.py` | Verifies HSI formulas |
 | **AI** | `python -m unittest services/ai-inference/test_rhythm_classifier.py` | Verifies Model Inference |
 | **Control** | `python -m unittest services/control-engine/test_pacing_controller.py` | Verifies Safety FSM |
-| **Integration** | `python -m unittest tests/integration_test.py` | Verifies End-to-End API Flow |
-| **MQTT** | `python tests/mqtt_test_client.py` | Verifies Broker Connectivity |
 
-### 3. Verification Layers
-- **Unit Tests**: Full coverage for mathematical formulas, state transitions, and ML inference.
-- **Integration Tests**: 
-  - **API Contracts**: Strict JSON Schema validation for all service responses.
-  - **Persistence**: Verification of the SQLite decision audit log.
-  - **MQTT Flow**: Broker connectivity reliability checks.
+### 3. Verification Scenarios & Layers
+PulseMind ensures safety through hierarchical verification:
+- **Unit Testing**: Full coverage for mathematical formulas and state transitions.
+- **Contract Testing**: Strict JSON Schema validation for all service communications.
+- **Safety Path Automation**: Automated "Tachycardia" and "Bradycardia" scenario injections to verify Control Policy response.
+- **Persistence Audit**: Verification of the SQLite decision audit log integrity.
+- **Performance Benchmarking**: Real-time measurement of end-to-end processing latency.
+- **Chaos Engineering**: Proactive simulation of service failures with verified graceful degradation and self-healing.
+- **MQTT Reliability**: Verification of broker connectivity and message round-trips.
