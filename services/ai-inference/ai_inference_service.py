@@ -209,8 +209,6 @@ def predict():
 
         # trust layer AFTER explanation
         prediction = apply_trust_layer(prediction, features)
-
-        # processing time added
         processing_time_ms = (time.time() - start_time) * 1000
 
         result = {
