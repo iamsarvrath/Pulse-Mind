@@ -6,8 +6,10 @@ from datetime import datetime
 
 from flask import Flask, jsonify, request
 
-# Add shared module to path
+# Add shared module to path (one level up for sibling service modules)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Add project root to path (two levels up for ai_training package)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 from rhythm_classifier import (  # noqa: E402
     classify_rhythm,
     get_model_status,
@@ -15,6 +17,9 @@ from rhythm_classifier import (  # noqa: E402
 )
 from shared.logger import setup_logger  # noqa: E402
 from shared.shutdown import register_shutdown_handler  # noqa: E402
+from trust_layer import apply_trust_layer  # noqa: E402
+
+from ai_training.xai.shap_explain import explain_prediction
 
 # Initialize logger
 logger = setup_logger("ai-inference", level="INFO")
@@ -187,14 +192,27 @@ def predict():
             "success": False,
             "error": f"Invalid feature value: {str(e)}"
         }), 400
-    
+
     # Perform classification
     try:
         prediction = classify_rhythm(hr, hrv, pulse)
-        
-        # Add processing time
+
+        # SHAP explanation generation
+        explanation = explain_prediction({
+            "heart_rate_bpm": hr,
+            "hrv_sdnn_ms": hrv,
+            "pulse_amplitude": pulse
+        })
+
+        # explanation to prediction
+        prediction["explanation"] = explanation
+
+        # trust layer AFTER explanation
+        prediction = apply_trust_layer(prediction, features)
+
+        # processing time added
         processing_time_ms = (time.time() - start_time) * 1000
-        
+
         result = {
             "success": True,
             "prediction": prediction,
@@ -206,7 +224,7 @@ def predict():
             "timestamp": datetime.utcnow().isoformat() + 'Z',
             "processing_time_ms": round(processing_time_ms, 2)
         }
-        
+
         logger.info(f"Prediction completed in {processing_time_ms:.2f}ms")
         return jsonify(result), 200
         
