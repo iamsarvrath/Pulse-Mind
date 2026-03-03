@@ -8,8 +8,6 @@ from flask import Flask, jsonify, request
 
 # Add shared module to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-# Add project root to path for ai_training module
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from rhythm_classifier import (  # noqa: E402
     classify_rhythm,
     get_model_status,
@@ -17,7 +15,7 @@ from rhythm_classifier import (  # noqa: E402
 )
 from shared.logger import setup_logger  # noqa: E402
 from shared.shutdown import register_shutdown_handler  # noqa: E402
-from ai_training.xai.trust_layer import apply_trust_layer  # noqa: E402
+from trust_layer import apply_trust_layer  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("ai-inference", level="INFO")
