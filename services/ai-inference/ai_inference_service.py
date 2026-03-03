@@ -15,6 +15,7 @@ from rhythm_classifier import (  # noqa: E402
 )
 from shared.logger import setup_logger  # noqa: E402
 from shared.shutdown import register_shutdown_handler  # noqa: E402
+from trust_layer import apply_trust_layer  # noqa: E402
 
 # Initialize logger
 logger = setup_logger("ai-inference", level="INFO")
@@ -191,6 +192,7 @@ def predict():
     # Perform classification
     try:
         prediction = classify_rhythm(hr, hrv, pulse)
+        prediction = apply_trust_layer(prediction, features)
         
         # Add processing time
         processing_time_ms = (time.time() - start_time) * 1000
