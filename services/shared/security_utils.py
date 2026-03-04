@@ -5,10 +5,21 @@ from typing import Dict, Optional
 from cryptography.fernet import Fernet
 
 # Security Constants
-# In production, these must be loaded from a secure vault
-JWT_SECRET = os.getenv("JWT_SECRET", "pulsemind-super-secret-key-123")
+# CRITICAL: In production, these MUST be loaded from environment variables.
+JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
-ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key().decode())
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+
+if not JWT_SECRET or not ENCRYPTION_KEY:
+    # Allow a fallback for development ONLY if explicitly permitted
+    if os.getenv("PULSEMIND_DEV_MODE") == "true":
+        JWT_SECRET = "dev-secret-keep-local"
+        ENCRYPTION_KEY = "7S-v9q9iB1-8j_nL0x-g9Yf8u8K5y6-nS5L0B-O8vY8="
+    else:
+        raise RuntimeError(
+            "CRITICAL SECURITY ERROR: JWT_SECRET or ENCRYPTION_KEY missing. "
+            "System cannot start in clinical mode without these keys."
+        )
 
 cipher_suite = Fernet(ENCRYPTION_KEY.encode())
 

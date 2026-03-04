@@ -19,7 +19,14 @@ from shared.logger import setup_logger  # noqa: E402
 from shared.shutdown import register_shutdown_handler  # noqa: E402
 from trust_layer import apply_trust_layer  # noqa: E402
 
-from ai_training.xai.shap_explain import explain_prediction
+try:
+    from ai_training.xai.shap_explain import explain_prediction
+    XAI_AVAILABLE = True
+except ImportError:
+    logger.warning("SHAP/XAI module not found. AI Inference will run without explainability.")
+    XAI_AVAILABLE = False
+    def explain_prediction(*args, **kwargs):
+        return {"error": "XAI features unavailable"}
 
 # Initialize logger
 logger = setup_logger("ai-inference", level="INFO")
@@ -45,17 +52,19 @@ def health_check():
     """
     logger.info("Health check requested")
     
-    # Get model status for additional info
     model_status = get_model_status()
     
+    is_ready = model_status["model_loaded"] and model_status["warmup_complete"]
+    status_code = 200 if is_ready else 503
+    
     return jsonify({
-        "status": "healthy",
+        "status": "healthy" if is_ready else "warming_up",
         "service": "ai-inference",
         "version": "1.0.0",
         "model_loaded": model_status["model_loaded"],
         "warmup_complete": model_status["warmup_complete"],
         "timestamp": datetime.utcnow().isoformat() + 'Z'
-    }), 200
+    }), status_code
 
 
 @app.route('/')
@@ -268,4 +277,4 @@ if __name__ == '__main__':
     # Flask starts accepting requests. Not critical, but improves UX.
     time.sleep(0.5)
 
-    app.run(host="0.0.0.0", port=8003)  # nosec B104
+    app.run(host="0.0.0.0", port=8003, threaded=True)  # Enabled threading for local concurrent requests
