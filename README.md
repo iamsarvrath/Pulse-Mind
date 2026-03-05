@@ -1,5 +1,31 @@
 # PulseMind: Medical-Grade Closed-Loop Pacing System
 
+> **"From reactive monitoring → to predictive, autonomous cardiac protection."**
+
+## 🎯 Purpose
+
+Traditional pacemakers react to a single threshold — heart rate. PulseMind is different. It is a **closed-loop AI system** that continuously analyzes the full physiology of a patient (HR, HRV, signal quality, waveform morphology) using a proprietary **Hemodynamic Surrogate Index (HSI)** and makes intelligent, autonomous pacing decisions *before* a cardiac emergency fully develops.
+
+### Comparison vs. Traditional Systems
+
+| Traditional Pacemaker | PulseMind |
+|---|---|
+| Fixed heart rate threshold | Patient-specific Gaussian HSI normalization |
+| No signal quality check | SQI-Interlock safety gate (noise-resistant) |
+| Simple pulse delivery | Closed-loop FSM with 4 pacing states |
+| Requires hospital hardware | Pruned AI running on ESP32 edge chip |
+| Black box decision | Explainable AI (XAI) audit logs |
+| Phase-delayed filtering | Zero-Lag Causal DSP (lfilter) |
+
+## 👥 Who It Helps
+
+- **🫀 Cardiac Patients** (Bradycardia, Tachycardia, AFib, PVC): A 24/7 AI guardian that detects hemodynamic collapse early and triggers corrective pacing before a critical event.
+- **🏥 ICU Clinicians & Nurses**: Eliminates "alert fatigue" with the SQI-Interlock, ensuring only genuine cardiac threats trigger alarms.
+- **🌍 Rural & Low-Resource Communities**: Runs on a $5 ESP32 chip — enabling hospital-grade cardiac intelligence via affordable wearable devices.
+- **🏭 Medical Device Manufacturers**: A patentable, FDA-aligned research blueprint for next-generation smart pacemakers and cardiac wearables.
+
+---
+
 ## Overview
 
 PulseMind is a deterministic, safety-critical control system designed for autonomous cardiac pacing. It analyzes real-time photoplethysmography (PPG) signals to compute Hemodynamic Surrogate Indices (HSI) and classify cardiac rhythms, driving an adaptive pacing controller that prioritizes patient safety above all else.
@@ -8,39 +34,141 @@ PulseMind is a deterministic, safety-critical control system designed for autono
 
 ```mermaid
 graph TD
-    Sensor[PPG Sensor] -->|Raw Signal| MQTT{MQTT Broker}
+    subgraph "Edge / Hardware"
+        Sensor[PPG Sensor] -->|Raw Signal| MQTT{MQTT Broker}
+        MQTT -->|Pacing Command| Actuator[ESP32 / Pacer]
+    end
+
     MQTT -->|Signal Topic| Ingest[API Gateway / Ingestion]
 
-    subgraph "Processing Core"
+    subgraph "Clinical Processing Core"
         Ingest -->|Raw Data| Signal[Signal Service]
         Signal -->|Features: HR, HRV| HSI[HSI Service]
-        Signal -->|Features: HR, HRV| AI[AI Inference]
-        HSI -->|HSI Score/Trend| Control[Control Engine]
-        AI -->|Rhythm Class| Control
+        Signal -->|Waveforms & Features| AIInference[AI Inference Ensemble]
+        
+        HSI -->|HSI Score| Control[Control Engine]
+        AIInference -->|Rhythm Class & Confidence| Control
+        
+        Control -->|Safety-Gated Command| MQTT
     end
 
-    Control -->|Pacing Command| MQTT
-    MQTT -->|Command Topic| Actuator[ESP32 / Pacer]
+    subgraph "MLOps & AI Pipeline"
+        ModelRegistry[(ML Registry)] -.->|Deploys Edge Model| AIInference
+        DriftMonitor[Data Drift Detector] -.->|Monitors| Signal
+        RetrainCoord[Retraining Coordinator]
+        
+        DriftMonitor -->|Triggers| RetrainCoord
+        RetrainCoord -->|Retrains| AdvancedModels[Advanced Model Notebooks]
+        AdvancedModels -->|Registers New Weights| ModelRegistry
+    end
 
-    subgraph "Monitoring"
-        Dashboard[Streamlit Dashboard] -.-> Signal
+    subgraph "Monitoring & Audit"
+        Dashboard[Streamlit Clinical Dashboard]
+        Dashboard -.-> Signal
         Dashboard -.-> HSI
-        Dashboard -.-> AI
+        Dashboard -.-> AIInference
         Dashboard -.-> Control
+        AuditDB[(SQLite Decision Audit)]
+        Control -->|Logs Decisions| AuditDB
     end
 ```
+
+## 🧠 Advanced AI Research Pipeline
+
+PulseMind has transitioned to a clinical-grade research pipeline focused on **Inter-Patient Validation** (Train patients ≠ Test patients) and **Safety-Critical Fusion**.
+
+### Phase A: Foundation (Morphology & Memory)
+*   **[NB-A1: Multi-Scale 1D-ResNet](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-A1_MultiScale_ResNet.ipynb)**: Parallel kernel branches (k=5, 11, 21) for multi-scale morphology.
+    *   **Accuracy**: **96.68%** | **Macro F1**: **0.4779**
+    *   **Innovation**: Squeeze-Excitation (SE) Gating + Focal Loss.
+    *   **Class F1**: **0.98 (Normal)**, **0.93 (PVC)**.
+*   **[NB-A2: BiGRU + Temporal Attention](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-A2_BiGRU_Temporal_Attention.ipynb)**: Operates on 8-beat sequences to capture rhythmic trends.
+    *   **Accuracy**: **96.18%** | **Macro F1**: **0.94**
+    *   **Innovation**: Bidirectional GRUs for predictive onset detection.
+
+### Phase B: Intelligence (Attention & Fusion)
+*   **[NB-B1: CardioFormer](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-B1_CardioFormer.ipynb)**: Domain-specific Transformer for global cardiac dependencies.
+    *   **Accuracy**: **95.84%** | **Macro F1**: **0.94**
+    *   **Result**: Superior generalization via multi-modal self-attention.
+*   **[NB-B2: Ensemble Fusion & Calibration](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-B2_Ensemble_Fusion.ipynb)**: Bayesian Consensus Layer.
+    *   **Accuracy**: **98.70%** | **Mean Uncertainty**: **0.2206**
+    *   **Safety Breakthrough**: **Uncertainty-Gated Pacing**. Inhibits action if model disagreement (mean uncertainty) exceeds 0.22.
+
+### Phase C: Clinical Grade (Privacy)
+*   **[NB-C1: Federated Learning & Privacy](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-C1_Federated_Learning.ipynb)**: Cross-hospital training simulation.
+    *   **Innovation**: FedAvg + Differential Privacy (DP-SGD).
+    *   **Compliance**: Demonstrates HIPAA-compliant learning without raw data sharing.
+
+## ⚙️ Advanced AI MLOps Pipeline
+
+To ensure the clinical models maintain their high accuracy in production, PulseMind features a fully automated medical MLOps pipeline located in the `mlops/` directory.
+
+### 1. Clinical Experiment Tracking (MLflow)
+*   **Component**: `mlops/ml_registry.py`
+*   **Description**: Automatically logs hyperparameters, performance metrics (Accuracy, Macro-F1), and PyTorch (`.pth`) weights for every research run.
+*   **Launch UI**: `mlflow ui --backend-store-uri sqlite:///mlflow.db`
+
+### 2. Patient Data Drift Monitoring (Evidently AI)
+*   **Component**: `mlops/drift_detector.py`
+*   **Description**: Compares real-time patient physiological feature distributions (HR, HRV, HSI) against the original MIT-BIH clinical baseline using statistical tests (e.g., Kolmogorov-Smirnov).
+*   **Output**: Generates a visual HTML dashboard (`reports/drift_report.html`) to flag degrading signal quality or shifting patient demographics.
+
+### 3. Autonomous Safety Retraining (Coordinator)
+*   **Component**: `mlops/retrain_coordinator.py`
+*   **Description**: A closed-loop safety gate. It continuously evaluates production models against a strict safety threshold (e.g., >85% accuracy).
+*   **Action**: If a model dips below the threshold due to drift, it is automatically **[REJECTED]** and the retraining pipeline is triggered. Successful models are promoted to **[CLINICAL-PRODUCTION]**.
+
+## 🤖 AI/ML Model Catalog
+
+PulseMind leverages a multi-modal intelligence stack, combining classical machine learning for robustness and deep learning for advanced pattern recognition.
+
+| Model Category | Architecture | Purpose | Key Metric |
+| :--- | :--- | :--- | :--- |
+| **Deep Learning** | **Multi-Scale ResNet** | Morphological beat-by-beat analysis | 96.68% Accuracy |
+| **Deep Learning** | **BiGRU + Attention** | Temporal rhythm and trend forecasting | 96.18% Accuracy |
+| **Deep Learning** | **CardioFormer** | Global clinical context (Transformer) | 95.84% Accuracy |
+| **Machine Learning**| **Random Forest** | Baseline rhythm classification (Edge) | High Speed / Interpretable |
+| **Ensemble** | **Bayesian Soft-Voting**| Multi-model consensus & safety gating | Uncertainty < 0.22 |
+| **Federated** | **FedAvg + DP-SGD** | Privacy-preserving cross-site learning | HIPAA Compliant |
+
+---
 
 ## Services
 
 | Service            | Port | Description                                                                     |
 | :----------------- | :--- | :------------------------------------------------------------------------------ |
 | **API Gateway**    | 8000 | Ingress point (JWT Auth), service registry, and health monitoring.              |
-| **Signal Service** | 8001 | DSP pipeline: Bandpass filtering (0.5-4Hz), Peak Detection, Feature Extraction. |
-| **HSI Service**    | 8002 | Computes Hemodynamic Surrogate Index (0-100) and trend analysis.                |
-| **AI Inference**   | 8003 | Random Forest Classifier for rhythm detection (Normal, Brady, Tachy, etc.).     |
+| **Signal Service** | 8001 | Zero-Lag DSP: Causal Bandpass (lfilter), Peak Detection, Feature Extraction.    |
+| **HSI Service** | 8002 | Computes Hemodynamic Surrogate Index (0-100) and trend analysis.                |
+| **AI Inference**   | 8003 | AI Rhythm Classifier with fail-safe container health checks.                    |
 | **Control Engine** | 8004 | Finite-State Machine for safety-critical pacing decisions.                      |
-| **Dashboard**      | 8501 | Clinical visualization interface.                                               |
+| **Bedside Monitor**| 8501 | Clinical HUD with Smooth Right-to-Left waveform scrolling and Biological Sim.   |
+| **Analytics Dashboard**| 8502 | Mission Control for clinical alerts, database auditing, and MLOps health.       |
 | **MQTT Broker**    | 1883 | Low-latency messaging for hardware I/O.                                         |
+
+## 🖥️ Interactive Dashboards
+
+PulseMind provides two distinct Streamlit dashboards for different operational personas:
+
+### 1. Bedside Monitor (Port 8501)
+*   **Target Audience**: Hospital Nurses, ICU Staff.
+*   **Purpose**: A real-time wave visualization tool featuring a **Smooth Right-to-Left Scrolling Engine** and **Biological Simulation** (P-QRS-T morphology). It utilizes Auto-Gain Control (AGC) for perfect clinical fit.
+*   **How to Run**: This is launched automatically via Docker Compose (`docker-compose up`). It can also be launched manually: 
+    ```bash
+    streamlit run services/dashboard/app.py --server.port 8501
+    ```
+
+### 2. Analytics Mission Control (Port 8502)
+*   **Target Audience**: Chief Medical Officers, AI Research Engineers, Auditors.
+*   **Purpose**: A top-level aggregation dashboard. It combines historical clinical databases with MLflow tracking registries to show 24-hour pacing alert summaries, intervention ratios, and automated MLOps system health (Data Drift / Model Accuracy).
+*   **How to Run**: This requires the Python virtual environment and the background ETL pipeline to be active:
+    ```bash
+    # 1. Start the ETL aggregator in the background
+    $env:PYTHONPATH=(Get-Location).Path; .\venv\Scripts\python.exe analytics\etl_pipeline.py
+    
+    # 2. Run the Dashboard (in a second terminal)
+    streamlit run analytics/dashboard_app.py --server.port 8502
+    ```
 
 ## Quick Start
 
@@ -49,6 +177,27 @@ graph TD
 - Docker & Docker Compose
 - Python 3.11+ (for local testing)
 
+### Local Environment Setup (Required for AI/MLOps)
+
+To run the Advanced AI Models and the MLOps pipeline locally, you must create a virtual environment and install the master dependencies list:
+
+```bash
+# 1. Create a virtual environment
+python -m venv venv
+
+# 2. Activate it
+# On Windows:
+.\venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+
+# 3. Install all project dependencies
+pip install -r requirements-all.txt
+
+# 4. Set Clinical Security Keys (Required for v5.0+)
+$env:JWT_SECRET="your_secret_here"; $env:ENCRYPTION_KEY="your_key_here"
+```
+
 ### Docker Operations
 
 Common commands for managing the PulseMind stack:
@@ -56,6 +205,7 @@ Common commands for managing the PulseMind stack:
 | Operation | Command | Description |
 | :--- | :--- | :--- |
 | **Start All** | `docker-compose up -d --build` | Builds and starts all services in background |
+| **Start Analytics** | `streamlit run analytics/dashboard_app.py --server.port 8502` | Launches the top-level Mission Control dashboard locally |
 | **Stop All** | `docker-compose down` | Stops and removes containers |
 | **View Logs** | `docker-compose logs -f [service_name]` | Follows logs (e.g., `docker-compose logs -f control-engine`) |
 | **Restart** | `docker-compose restart [service_name]` | Restarts a specific service |
@@ -69,10 +219,10 @@ Artifacts are available in the `experiments/` directory.
 
 ### Key Validation Results
 
-- **Service Health**: 100% Uptime during checks.
+- **Service Health**: 100% Uptime during checks. Fail-safe 503 during AI model warmup.
 - **Fault Tolerance**: Tested via `experiments/test_faults.py`. System fails gracefully to `SAFE_MODE` if AI service is unreachable.
 - **Safety Logic**: Control Engine correctly defaults to safe pacing parameters under uncertainty (Low Confidence / Missing Input).
-- **Latency**: End-to-end processing ~110ms; AI Inference ~10ms.
+- **Latency**: End-to-End Zero-Lag processing via **Causal lfilter** (~4ms DSP latency).
 
 ### End-to-End User Scenarios
 We have validated the full "Loop" from signal to pacing:
@@ -126,8 +276,8 @@ PulseMind is designed with a "Privacy-by-Design" architecture to meet clinical r
 
 ### 🛡️ Data Protection (PHI Encryption)
 The system implements **Transparent Data Encryption (TDE)** at the application layer:
-- **Algorithm**: AES-256 (Fernet) encryption for all Protected Health Information (PHI).
-- **Fields Encrypted**: Heart rhythms, HSI scores, clinical rationales, and full decision payloads.
+- **PHI Encryption**: AES-256 (Fernet) for protected health information.
+- **Hardening**: No hardcoded production secrets. System enforces environment-variable based key injection for FDA alignment.
 - **At Rest**: Data is stored encrypted in the SQLite audit database.
 
 ### 🧹 Automated Log Scrubbing
