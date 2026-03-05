@@ -43,7 +43,7 @@ def bandpass_filter(
     Raises:
         ValueError: If sampling rate is too low or cutoff frequencies are invalid
     """
-    logger.info(f"Applying bandpass filter: {lowcut}-{highcut} Hz, SR={sampling_rate} Hz")
+    logger.debug(f"Applying bandpass filter: {lowcut}-{highcut} Hz, SR={sampling_rate} Hz")
     
     # Validate inputs
     if sampling_rate <= 0:
@@ -69,10 +69,11 @@ def bandpass_filter(
     # Design Butterworth bandpass filter
     b, a = signal.butter(order, [low, high], btype='band')
     
-    # Apply filter (using filtfilt for zero-phase filtering)
-    filtered = signal.filtfilt(b, a, signal_data)
+    # Apply filter (using lfilter for causal/real-time processing)
+    # MEDICAL GRADE: lfilter is causal and has zero look-ahead latency.
+    filtered = signal.lfilter(b, a, signal_data)
 
-    logger.info("Bandpass filter applied successfully")
+    logger.debug("Causal bandpass filter applied successfully")
     return np.asanyarray(filtered)
 
 
@@ -99,7 +100,7 @@ def detect_peaks(
     Raises:
         ValueError: If signal is too short or parameters are invalid
     """
-    logger.info(f"Detecting peaks with min_distance={min_distance_sec}s")
+    logger.debug(f"Detecting peaks with min_distance={min_distance_sec}s")
     
     if len(signal_data) < 10:
         raise ValueError(f"Signal too short for peak detection: {len(signal_data)} samples")
@@ -121,7 +122,7 @@ def detect_peaks(
         prominence=prominence_threshold
     )
     
-    logger.info(f"Detected {len(peaks)} peaks")
+    logger.debug(f"Detected {len(peaks)} peaks")
     return peaks, properties
 
 
