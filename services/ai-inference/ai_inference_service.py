@@ -23,7 +23,9 @@ try:
     from ai_training.xai.shap_explain import explain_prediction
     XAI_AVAILABLE = True
 except ImportError:
-    logger.warning("SHAP/XAI module not found. AI Inference will run without explainability.")
+    # Logger is initialized later, so we just set the flag and dummy function here
+    # or move the try-except AFTER logger initialization.
+    # Actually logger is initialized at line 36.
     XAI_AVAILABLE = False
     def explain_prediction(*args, **kwargs):
         return {"error": "XAI features unavailable"}
@@ -218,6 +220,8 @@ def predict():
 
         # trust layer AFTER explanation
         prediction = apply_trust_layer(prediction, features)
+
+        # processing time added
         processing_time_ms = (time.time() - start_time) * 1000
 
         result = {
