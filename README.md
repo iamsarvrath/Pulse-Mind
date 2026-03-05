@@ -79,25 +79,74 @@ PulseMind has transitioned to a clinical-grade research pipeline focused on **In
 
 ### Phase A: Foundation (Morphology & Memory)
 *   **[NB-A1: Multi-Scale 1D-ResNet](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-A1_MultiScale_ResNet.ipynb)**: Parallel kernel branches (k=5, 11, 21) for multi-scale morphology.
-    *   **Accuracy**: **96.68%** | **Macro F1**: **0.4779**
+    *   **Accuracy**: **96.38%** | **Macro F1**: **0.4766**
     *   **Innovation**: Squeeze-Excitation (SE) Gating + Focal Loss.
-    *   **Class F1**: **0.98 (Normal)**, **0.93 (PVC)**.
+    *   **Architecture**:
+    ```mermaid
+    graph LR
+        Input[Raw PPG Signal] --> B1[Fine: k=5, ch=32]
+        Input --> B2[Mid: k=11, ch=32]
+        Input --> B3[Coarse: k=21, ch=32]
+        subgraph "Morphological Fusion"
+            B1 & B2 & B3 --> Parallel[ResBlock x2 per branch]
+            Parallel --> Conc[Concatenation: 192 ch]
+            Conc --> SE[SE-Fusion Gating]
+            SE --> Dense[Dense: 256] --> Out[Softmax: 4 Classes]
+        end
+    ```
 *   **[NB-A2: BiGRU + Temporal Attention](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-A2_BiGRU_Temporal_Attention.ipynb)**: Operates on 8-beat sequences to capture rhythmic trends.
-    *   **Accuracy**: **96.18%** | **Macro F1**: **0.94**
-    *   **Innovation**: Bidirectional GRUs for predictive onset detection.
+    *   **Accuracy**: **95.27%** | **Macro F1**: **0.93**
+    *   **Architecture**:
+    ```mermaid
+    graph TD
+        Seq[8-Beat Sequence] --> CNN[CNN Encoder: 128 ch]
+        CNN --> BiGRU[2-Layer BiGRU: 256 ch]
+        BiGRU --> Attn[Temporal Attention: 4 heads]
+        Attn --> Pooling[Global Average Pooling]
+        Pooling --> Head[Dense Head: 64] --> Out[Softmax: 4 Classes]
+    ```
 
 ### Phase B: Intelligence (Attention & Fusion)
 *   **[NB-B1: CardioFormer](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-B1_CardioFormer.ipynb)**: Domain-specific Transformer for global cardiac dependencies.
-    *   **Accuracy**: **95.84%** | **Macro F1**: **0.94**
-    *   **Result**: Superior generalization via multi-modal self-attention.
+    *   **Accuracy**: **95.57%** | **Macro F1**: **0.93**
+    *   **Architecture**:
+    ```mermaid
+    graph TD
+        Input[8-Beat PPG Tokens] --> Tokenizer[Conv1D Tokenizer: 128d]
+        Tokenizer --> Pos[Positional Encoding]
+        Pos --> TF[Transformer Encoder: 4 Layers]
+        TF --> Attention[Multi-Head Attention: 8 Heads]
+        Attention --> Head[Dense: 64] --> Out[Softmax: 4 Classes]
+    ```
 *   **[NB-B2: Ensemble Fusion & Calibration](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-B2_Ensemble_Fusion.ipynb)**: Bayesian Consensus Layer.
-    *   **Accuracy**: **98.70%** | **Mean Uncertainty**: **0.2206**
-    *   **Safety Breakthrough**: **Uncertainty-Gated Pacing**. Inhibits action if model disagreement (mean uncertainty) exceeds 0.22.
+    *   **Accuracy**: **98.22%** | **Mean Uncertainty**: **0.0359**
+    *   **Decision Logic**:
+    ```mermaid
+    graph TD
+        A1[Morphology: ResNet] --> S1[Softmax]
+        A2[Temporal: BiGRU] --> S2[Softmax]
+        B1[Attention: CardioFormer] --> S3[Softmax]
+        S1 & S2 & S3 --> Avg[Soft-Voting Fusion]
+        subgraph "Safety Interlock"
+            Avg --> UncStat[Uncertainty: Std Dev]
+            UncStat --> Gate{Uncertainty < 0.12?}
+            Gate -->|Yes| Pacing[Predictive Pacing ENABLED]
+            Gate -->|No| Inhibited[SQI_INHIBITED / SAFE_MODE]
+        end
+    ```
 
 ### Phase C: Clinical Grade (Privacy)
 *   **[NB-C1: Federated Learning & Privacy](file:///c:/Users/SARVESH%20%20RATHOD/Desktop/Pulse-Mind/notebooks/NB-C1_Federated_Learning.ipynb)**: Cross-hospital training simulation.
     *   **Innovation**: FedAvg + Differential Privacy (DP-SGD).
-    *   **Compliance**: Demonstrates HIPAA-compliant learning without raw data sharing.
+    *   **Privacy Workflow**:
+    ```mermaid
+    graph LR
+        H1["Clinic Alpha (4200)"] --> T1[Local Training]
+        H2["Clinic Beta (5863)"] --> T2[Local Training]
+        T1 & T2 --> Agg[FedAvg Server]
+        Agg --> Global[Global Heart Model]
+        Global --> Eval["Clinic Gamma: 93.49% Holdout Acc"]
+    ```
 
 ## ⚙️ Advanced AI MLOps Pipeline
 
@@ -124,12 +173,12 @@ PulseMind leverages a multi-modal intelligence stack, combining classical machin
 
 | Model Category | Architecture | Purpose | Key Metric |
 | :--- | :--- | :--- | :--- |
-| **Deep Learning** | **Multi-Scale ResNet** | Morphological beat-by-beat analysis | 96.68% Accuracy |
-| **Deep Learning** | **BiGRU + Attention** | Temporal rhythm and trend forecasting | 96.18% Accuracy |
-| **Deep Learning** | **CardioFormer** | Global clinical context (Transformer) | 95.84% Accuracy |
+| **Deep Learning** | **Multi-Scale ResNet** | Morphological beat-by-beat analysis | 96.38% Accuracy |
+| **Deep Learning** | **BiGRU + Attention** | Temporal rhythm and trend forecasting | 95.27% Accuracy |
+| **Deep Learning** | **CardioFormer** | Global clinical context (Transformer) | 95.57% Accuracy |
 | **Machine Learning**| **Random Forest** | Baseline rhythm classification (Edge) | High Speed / Interpretable |
-| **Ensemble** | **Bayesian Soft-Voting**| Multi-model consensus & safety gating | Uncertainty < 0.22 |
-| **Federated** | **FedAvg + DP-SGD** | Privacy-preserving cross-site learning | HIPAA Compliant |
+| **Ensemble** | **Bayesian Soft-Voting**| Multi-model consensus & safety gating | Uncertainty < 0.12 |
+| **Federated** | **FedAvg + DP-SGD** | Privacy-preserving cross-site learning | 93.49% Holdout Acc |
 
 ---
 
