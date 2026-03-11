@@ -1,0 +1,14 @@
+[
+  {
+    "feature": "pulse_amplitude",
+    "importance": 0.431
+  },
+  {
+    "feature": "hrv_sdnn_ms",
+    "importance": 0.3715
+  },
+  {
+    "feature": "heart_rate_bpm",
+    "importance": 0.1975
+  }
+]
